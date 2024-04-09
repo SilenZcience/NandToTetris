@@ -18,5 +18,7 @@ CHIP DMux8Way {
     OUT a, b, c, d, e, f, g, h;
 
     PARTS:
-    //// Replace this comment with your code.
+    DMux(in=in, sel=sel[2], a=o1, b=o2);
+    DMux4Way(in=o1, sel=sel[0..1], a=a, b=b, c=c, d=d); // HW Simulator Tutorial www.nand2tetris.org Slide 39/49
+    DMux4Way(in=o2, sel=sel[0..1], a=e, b=f, c=g, d=h); // liefert Syntax [0..1]
 }
