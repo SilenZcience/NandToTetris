@@ -27,19 +27,49 @@
 // if (no == 1) sets out = !out   // bitwise not
 
 CHIP ALU {
-    IN  
-        x[16], y[16],  // 16-bit inputs        
+    IN
+        x[16], y[16],  // 16-bit inputs
         zx, // zero the x input?
         nx, // negate the x input?
         zy, // zero the y input?
         ny, // negate the y input?
         f,  // compute (out = x + y) or (out = x & y)?
         no; // negate the out output?
-    OUT 
+    OUT
         out[16], // 16-bit output
         zr,      // if (out == 0) equals 1, else 0
         ng;      // if (out < 0)  equals 1, else 0
 
     PARTS:
-    //// Replace this comment with your code.
+
+    // if (zx==1) set x = 0
+    Mux16(a=x, b[0..15]=false, sel=zx, out=ozx);
+
+    // if (nx==1) set x = ~x
+    Not16(in=ozx, out=nozx);
+    Mux16(a=ozx, b=nozx, sel=nx, out=onx);
+
+    // if (zy==1) set y = 0
+    Mux16(a=y, b[0..15]=false, sel=zy, out=ozy);
+
+    // if (ny==1) set y = ~y
+    Not16(in=ozy, out=nozy);
+    Mux16(a=ozy, b=nozy, sel=ny, out=ony);
+
+    // if (f==1)  set out = x + y
+    // if (f==0)  set out = x & y
+    Add16(a=onx, b=ony, out=addxy);
+    And16(a=onx, b=ony, out=andxy);
+    Mux16(a=andxy, b=addxy, sel=f, out=of);
+
+    // if (no==1) set out = ~out
+    Not16(in=of, out=nof);
+    Mux16(a=of, b=nof, sel=no, out=ono);
+
+    // zr, if (out == 0) equals 1, else 0
+    IsZero16(in=ono, out=zr);
+
+    // ng, if (out < 0)  equals 1, else 0
+    Or16(a=ono, b[0..15]=false, out=out, out[15]=ng);
+
 }
