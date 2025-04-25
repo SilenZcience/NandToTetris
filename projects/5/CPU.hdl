@@ -27,10 +27,44 @@ CHIP CPU {
                          // the current program (reset==0).
 
     OUT outM[16],        // M value output
-        writeM,          // Write to M? 
+        writeM,          // Write to M?
         addressM[15],    // Address in data memory (of M)
         pc[15];          // address of next instruction
 
     PARTS:
-	//// Replace this comment with your code.
+    // check if it is a C-Instruction
+    And(a=instruction[15],    b=instruction[14], out=isCInstructionPart);
+    And(a=isCInstructionPart, b=instruction[13], out=isCInstruction    );
+    Not(in=isCInstruction, out=isNotCInstruction);
+
+    Mux16(a=instruction, b=outALU, sel=isCInstruction, out=inA);
+    // load A Register when it is an A-Instruction(@value) or when d1/instruction[5](=A) destination is set
+    Or(a=isNotCInstruction, b=instruction[5], out=loadA);
+    ARegister(in=inA, load=loadA, out=outA, out[0..14]=addressM);
+
+    // if a-Bit(instruction[12]) == 0, load A, otherwise M
+    Mux16(a=outA, b=inM, sel=instruction[12], out=outAM);
+
+    // load D Register when it is a C-Instruction and d2(=D) destination is set
+    And(a=isCInstruction, b=instruction[4], out=loadD);
+    DRegister(in=outALU, load=loadD, out=outD);
+
+    // ALU stuff
+    ALU(x=outD, y=outAM, zx=instruction[11], nx=instruction[10], zy=instruction[9], ny=instruction[8], f=instruction[7], no=instruction[6], out=outM,out=outALU, zr=outIsZero, ng=outIsNegative);
+
+    // write M when it is a C-Instruction and d3(=M) destination is set
+    And(a=isCInstruction, b=instruction[3], out=writeM);
+
+    // jumps
+    Or(a=outIsZero, b=outIsNegative, out=outIsNotPositive);
+    Not(in=outIsNotPositive, out=outIsPositive);
+    And(a=instruction[2], b=outIsNegative, out=j1);
+    And(a=instruction[1], b=outIsZero,     out=j2);
+    And(a=instruction[0], b=outIsPositive, out=j3);
+    Or(a=j1,  b=j2, out=j12 );
+    Or(a=j12, b=j3, out=j123);
+    And(a=j123, b=isCInstruction, out=jmp);
+
+    // load outA when jump is set
+    PC(in=outA, load=jmp, inc=true, reset=reset, out[0..14]=pc);
 }
