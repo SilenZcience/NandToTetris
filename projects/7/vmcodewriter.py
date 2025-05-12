@@ -44,6 +44,7 @@ class VMCodeWriter:
         if command in ['eq', 'gt', 'lt']:
             label_compare = f"COMPARISON{self.label_id}"
             label_compare_end = f"ENDCOMPARISON{self.label_id}"
+            self.label_id += 1
             write('D=M')
 
             write(f"@{label_compare}")
@@ -61,15 +62,11 @@ class VMCodeWriter:
             write('0;JMP')
 
             write(f"({label_compare})")
-
             write('@SP')
             write('A=M-1')
             write('M=-1')
 
             write(f"({label_compare_end})")
-
-            self.label_id += 1
-
 
         f_out.close()
 
