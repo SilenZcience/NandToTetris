@@ -1,8 +1,9 @@
 import os
 import sys
 
-from vmparser import VMParser
-from vmcodewriter import VMCodeWriter
+from vm_parser import VMParser
+from vm_codewriter import VMCodeWriter
+
 
 MSG_ERROR   = '  \x1b[31mERROR\x1b[0m:'
 MSG_WARNING = '\x1b[33mWARNING\x1b[0m:'
@@ -19,12 +20,13 @@ class VMTranslator:
         while parser.hasMoreLines():
             parser.advance()
             command_type = parser.commandType()
+            c_line = parser.commandLine()
             if command_type == 'C_ARITHMETIC':
-                codewriter.writeArithmetic(parser.arg1())
+                codewriter.writeArithmetic(c_line, parser.arg1())
             elif command_type in ['C_PUSH', 'C_POP']:
-                codewriter.writePushPop(command_type, parser.arg1(), parser.arg2())
+                codewriter.writePushPop(c_line, command_type, parser.arg1(), parser.arg2())
             else:
-                raise SyntaxError(f"Unknown command type: {parser.instruction} at line {parser.position + 1}")
+                raise SyntaxError(f"Unknown command type: '{parser.instruction}' at line {c_line}")
 
 
 def acc_vm_files(arg_paths: list) -> set:
