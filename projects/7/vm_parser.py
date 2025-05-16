@@ -8,7 +8,7 @@ class VMParser:
         self.in_file = in_file
         self.position = -1
         self.instructions = []
-        self.instruction: tuple = ('', 0)
+        self.instruction: tuple = ('', 0) # (instruction, line number)
 
         self._read_instructions()
 
