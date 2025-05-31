@@ -70,38 +70,43 @@ python -m vmtranslator [-h | --help] [<file.vm> | <directory>]
     - ```python3 -m vmtranslator ./FunctionCalls/StaticsTest/```
 
 ```bash
-   INFO: Searching directory '.\FunctionCalls\StaticsTest\' for .vm files.
-   INFO: File '.\FunctionCalls\StaticsTest\Class1.vm' collected.
-   INFO: File '.\FunctionCalls\StaticsTest\Class2.vm' collected.
-   INFO: File '.\FunctionCalls\StaticsTest\Sys.vm' collected.
+   INFO: Searching directory './FunctionCalls/StaticsTest/' for .vm files.
+   INFO: File './FunctionCalls/StaticsTest/Class1.vm' collected.
+   INFO: File './FunctionCalls/StaticsTest/Class2.vm' collected.
+   INFO: File './FunctionCalls/StaticsTest/Sys.vm' collected.
 
-   INFO: Translating '.\FunctionCalls\StaticsTest\Sys.vm'
-   INFO: Successfully translated '.\FunctionCalls\StaticsTest\Sys.vm'
+   INFO: Translating './FunctionCalls/StaticsTest/Class1.vm'
+   INFO: Successfully translated './FunctionCalls/StaticsTest/Class1.vm'
 
-   INFO: Translating '.\FunctionCalls\StaticsTest\Class1.vm'
-   INFO: Successfully translated '.\FunctionCalls\StaticsTest\Class1.vm'
+   INFO: Translating './FunctionCalls/StaticsTest/Class2.vm'
+   INFO: Successfully translated './FunctionCalls/StaticsTest/Class2.vm'
 
-   INFO: Translating '.\FunctionCalls\StaticsTest\Class2.vm'
-   INFO: Successfully translated '.\FunctionCalls\StaticsTest\Class2.vm'
+   INFO: Translating './FunctionCalls/StaticsTest/Sys.vm'
+   INFO: Successfully translated './FunctionCalls/StaticsTest/Sys.vm'
 
-   INFO: Translation complete. Output written to '.\FunctionCalls\StaticsTest\StaticsTest.asm'
+   INFO: Translation complete. Output written to './FunctionCalls/StaticsTest/StaticsTest.asm'
 ```
 
 semantic errors are being checked and reported by providing their line number and line content.
 
 
 ```
-   INFO: Translating './StackArithmetic\StackTest\StackTest.vm' to './StackArithmetic\StackTest\StackTest.asm'
-  ERROR: Unknown command type: 'fizz constant 17' at line 8
+   INFO: Translating './FunctionCalls/StaticsTest/Class1.vm'
+  ERROR: Wrong number of arguments for command 'push argument 0 fizz' at line 8
 
-   INFO: Translating './StackArithmetic\SimpleAdd\SimpleAdd.vm' to './StackArithmetic\SimpleAdd\SimpleAdd.asm'
-  ERROR: Unknown segment for push: 'buzz' at line 9
+   INFO: Translating './FunctionCalls/StaticsTest/Class1.vm'
+  ERROR: Unknown command type: 'buzz' at line 9
 
-   INFO: Translating './MemoryAccess\BasicTest\BasicTest.vm' to './MemoryAccess\BasicTest\BasicTest.asm'
-  ERROR: Unknown segment for push: 'constant' at line 19
+   INFO: Translating './FunctionCalls/StaticsTest/Class1.vm'
+  ERROR: Unknown segment for push: 'fizzbuzz' at line 8
 
-   INFO: Translating './MemoryAccess\StaticTest\StaticTest.vm' to './MemoryAccess\StaticTest\StaticTest.asm'
-  ERROR: Invalid index for arg2: '333a' at line 9
+   INFO: Translating './FunctionCalls/StaticsTest/Class1.vm'
+  ERROR: Unknown segment for pop: 'constant' at line 8
+
+   INFO: Translating './FunctionCalls/StaticsTest/Class1.vm'
+  ERROR: Invalid index for second argument: '0x00' at line 8
+
+  ERROR: Path './FunctionCalls/StaticsTests/' is neither a file nor a directory.
 ```
 
 <p align="right">(<a href="#top">back to top</a>)</p>
