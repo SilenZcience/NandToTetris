@@ -1,13 +1,26 @@
 import os
 import sys
 
-from vmtranslator.vm_parser import VMParser
+from vmtranslator.vm_parser import VMParser, CTypes
 from vmtranslator.vm_codewriter import VMCodeWriter
 
 
 MSG_ERROR   = '  \x1b[31mERROR\x1b[0m:'
 MSG_WARNING = '\x1b[33mWARNING\x1b[0m:'
 MSG_INFO    = '   \x1b[32mINFO\x1b[0m:'
+
+
+CODEWRITER_CALLS = {
+    CTypes.C_ARITHMETIC: 'writeArithmetic',
+    CTypes.C_PUSH:       'writePush',
+    CTypes.C_POP:        'writePop',
+    CTypes.C_LABEL:      'writeLabel',
+    CTypes.C_GOTO:       'writeGoto',
+    CTypes.C_IF:         'writeIf',
+    CTypes.C_FUNCTION:   'writeFunction',
+    CTypes.C_CALL:       'writeCall',
+    CTypes.C_RETURN:     'writeReturn'
+}
 
 
 class VMTranslator:
@@ -24,30 +37,23 @@ class VMTranslator:
         while parser.hasMoreLines():
             parser.advance()
             command_type = parser.commandType()
-            c_line = parser.commandLine()
+            self.codewriter.setCurrentLine(parser.commandLine())
 
-            if command_type == 'C_ARITHMETIC':
-                self.codewriter.writeArithmetic(c_line, parser.arg1())
-            elif command_type in ['C_PUSH', 'C_POP']:
-                self.codewriter.writePushPop(c_line, command_type, parser.arg1(), parser.arg2())
-            elif command_type == 'C_LABEL':
-                self.codewriter.writeLabel(c_line, parser.arg1())
-            elif command_type == 'C_GOTO':
-                self.codewriter.writeGoto(c_line, parser.arg1())
-            elif command_type == 'C_IF':
-                self.codewriter.writeIf(c_line, parser.arg1())
-            elif command_type == 'C_FUNCTION':
-                self.codewriter.writeFunction(c_line, parser.arg1(), parser.arg2())
-            elif command_type == 'C_CALL':
-                self.codewriter.writeCall(c_line, parser.arg1(), parser.arg2())
-            elif command_type == 'C_RETURN':
-                self.codewriter.writeReturn(c_line)
-            else:
-                raise SyntaxError(f"Unknown command type: '{parser.instruction}' at line {c_line}")
-            self.codewriter.writeAssembly('')
+            getattr(
+                self.codewriter,
+                CODEWRITER_CALLS[command_type],
+                lambda *_: None
+            )(
+                parser.arg1(),
+                parser.arg2()
+            )
 
 
 def acc_vm_files(arg_path: str) -> tuple:
+    """
+    Collects .vm files from a given path, which can be a file or a directory.
+    Returns a set of .vm file paths and the output assembly file path.
+    """
     vm_files = set()
 
     if os.path.isfile(arg_path):
@@ -71,11 +77,14 @@ def acc_vm_files(arg_path: str) -> tuple:
 
 
 def contains_sys_init(vm_files):
+    """
+    Check if any of the provided .vm files contains a 'Sys.init' call.
+    If true we need to generate the bootstrap code in the output assembly file.
+    """
     for vm_file in vm_files:
         with open(vm_file, encoding="utf-8") as f:
-            for line in f:
-                if "Sys.init" in line:
-                    return True
+            if "Sys.init" in f.read():
+                return True
     return False
 
 
@@ -85,10 +94,14 @@ def main(args: list) -> int:
         print(f"{MSG_INFO} Translates .vm files to a single .asm file.")
         return not len(args) == 1
 
-    vm_files, out_file = acc_vm_files(args[0])
+    try:
+        vm_files, out_file = acc_vm_files(args[0])
+    except FileNotFoundError as e:
+        print(f"{MSG_ERROR} {e}")
+        return 2
     if not vm_files:
         print(f"{MSG_ERROR} No .vm files found/provided.")
-        return 2
+        return 3
 
     vm_translator = VMTranslator(out_file, include_init=contains_sys_init(vm_files))
     for vm_file in vm_files:
@@ -99,7 +112,7 @@ def main(args: list) -> int:
         except (FileNotFoundError, SyntaxError, EOFError) as e:
             print(f"{MSG_ERROR} {e}")
             del vm_translator
-            return 3
+            return 4
     print(f"\n{MSG_INFO} Translation complete. Output written to '{out_file}'")
 
     del vm_translator

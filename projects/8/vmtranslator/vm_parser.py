@@ -1,3 +1,19 @@
+from enum import Enum
+
+
+class CTypes(Enum):
+    """
+    Enum for command types in VM files.
+    """
+    C_ARITHMETIC = 'C_ARITHMETIC'
+    C_PUSH = 'C_PUSH'
+    C_POP = 'C_POP'
+    C_LABEL = 'C_LABEL'
+    C_GOTO = 'C_GOTO'
+    C_IF = 'C_IF'
+    C_FUNCTION = 'C_FUNCTION'
+    C_CALL = 'C_CALL'
+    C_RETURN = 'C_RETURN'
 
 
 class VMParser:
@@ -41,23 +57,23 @@ class VMParser:
         instruction_parts = self.instruction[0].split(' ')
         instruction = instruction_parts[0]
         if instruction in ['add', 'sub', 'neg', 'eq', 'gt', 'lt', 'and', 'or', 'not']:
-            return 'C_ARITHMETIC'
+            return CTypes.C_ARITHMETIC
         if instruction == 'push':
-            return 'C_PUSH'
+            return CTypes.C_PUSH
         if instruction == 'pop':
-            return 'C_POP'
+            return CTypes.C_POP
         if instruction == 'label':
-            return 'C_LABEL'
+            return CTypes.C_LABEL
         if instruction == 'goto':
-            return 'C_GOTO'
+            return CTypes.C_GOTO
         if instruction == 'if-goto':
-            return 'C_IF'
+            return CTypes.C_IF
         if instruction == 'function':
-            return 'C_FUNCTION'
+            return CTypes.C_FUNCTION
         if instruction == 'call':
-            return 'C_CALL'
+            return CTypes.C_CALL
         if instruction == 'return':
-            return 'C_RETURN'
+            return CTypes.C_RETURN
         raise SyntaxError(f"Unknown command type: '{self.instruction[0]}' at line {self.instruction[1]}")
 
     def commandLine(self) -> int:
@@ -71,9 +87,9 @@ class VMParser:
         return the first argument of the current command.
         """
         instruction_parts = self.instruction[0].split(' ')
-        if self.commandType() == 'C_RETURN':
+        if self.commandType() == CTypes.C_RETURN:
             return None
-        if self.commandType() == 'C_ARITHMETIC':
+        if self.commandType() == CTypes.C_ARITHMETIC:
             return instruction_parts[0]
         return instruction_parts[1]
 
@@ -82,10 +98,10 @@ class VMParser:
         return the second argument of the current command.
         """
         instruction_parts = self.instruction[0].split(' ')
-        if self.commandType() in ['C_PUSH', 'C_POP', 'C_FUNCTION', 'C_CALL']:
-            if len(instruction_parts) < 3:
-                raise SyntaxError(f"Missing arg2 for command: '{self.instruction[0]}' at line {self.instruction[1]}")
+        if self.commandType() in [CTypes.C_PUSH, CTypes.C_POP, CTypes.C_FUNCTION, CTypes.C_CALL]:
+            if len(instruction_parts) != 3:
+                raise SyntaxError(f"Wrong number of arguments for command '{self.instruction[0]}' at line {self.instruction[1]}")
             if not instruction_parts[2].isdigit():
-                raise SyntaxError(f"Invalid index for arg2: '{instruction_parts[2]}' at line {self.instruction[1]}")
+                raise SyntaxError(f"Invalid index for second argument: '{instruction_parts[2]}' at line {self.instruction[1]}")
             return int(instruction_parts[2])
         return None

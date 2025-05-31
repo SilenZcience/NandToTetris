@@ -7,6 +7,7 @@ class VMCodeWriter:
 
         self.label_id = 0
         self.c_file = ''
+        self.c_line = -1
 
     def writeAssembly(self, line: str) -> None:
         if not (line.startswith('//') or line.startswith('(')):
@@ -14,28 +15,29 @@ class VMCodeWriter:
         self.f_out.write(f"{line}\n")
 
     def setCurrentFileName(self, file_name: str) -> None:
-        self.c_file = file_name.replace('/', '_').replace('\\', '_')
+        file_name = file_name.replace('\\', '_').replace('/', '_')
+        self.c_file = ''.join(filter(lambda x: x.isalnum() or x in '_-.', file_name))
+
+    def setCurrentLine(self, line: int) -> None:
+        self.c_line = line
 
     def __del__(self):
         if hasattr(self, 'f_out') and not self.f_out.closed:
             self.f_out.close()
 
 
-
-
     def writeInit(self) -> None:
         """
-        Write the assembly code to initialize the VM.
-        This is typically called at the start of the program.
+        Write the bootstrap assembly code to initialize the VM.
         """
         self.writeAssembly('// init')
         self.writeAssembly('@256')
         self.writeAssembly('D=A')
         self.writeAssembly('@SP')
-        self.writeAssembly('M=D')
-        self.writeCall(0, 'Sys.init', 0)
+        self.writeAssembly('M=D\n')
+        self.writeCall('Sys.init', 0)
 
-    def writeArithmetic(self, _: int, command: str) -> None:
+    def writeArithmetic(self, command: str, *_) -> None:
         """
         Write the assembly code for the arithmetic command.
         """
@@ -90,96 +92,100 @@ class VMCodeWriter:
 
             self.writeAssembly(f"({label_compare_end})")
 
-    def writePushPop(self, line: int, command: str, segment: str, index: int) -> None:
+        self.writeAssembly('')
+
+    def writePush(self, segment: str, index: int, *_) -> None:
         """
-        Write the assembly code for the push/pop command.
+        Write the assembly code for the push command.
         """
-        if command == 'C_PUSH':
-            if segment not in [
-                'constant',
-                'local', 'argument', 'this', 'that', 'static', 'temp', 'pointer'
-            ]:
-                raise SyntaxError(f"Unknown segment for push: '{segment}' at line {line}")
+        if segment not in [
+            'constant',
+            'local', 'argument', 'this', 'that', 'static', 'temp', 'pointer'
+        ]:
+            raise SyntaxError(f"Unknown segment for push: '{segment}' at line {index}") # TODO: aw
 
-            self.writeAssembly(f"// push {segment} {index}")
-            if segment == 'static':
-                self.writeAssembly(f"@{self.c_file}.{index}")
-            elif segment == 'temp':
-                self.writeAssembly(f"@{index + 5}")
-            else:
-                self.writeAssembly(f"@{index}")
-            if segment not in ['static', 'temp']:
-                self.writeAssembly('D=A')
-
-            if segment == 'local':
-                self.writeAssembly('@LCL')
-            if segment == 'argument':
-                self.writeAssembly('@ARG')
-            if segment in ['this', 'pointer']:
-                self.writeAssembly('@THIS')
-            if segment == 'that':
-                self.writeAssembly('@THAT')
-            if segment in ['local', 'argument', 'this', 'that']:
-                self.writeAssembly('A=D+M')
-            if segment == 'pointer':
-                self.writeAssembly('A=D+A')
-            if segment != 'constant':
-                self.writeAssembly('D=M')
-
-            self.writeAssembly('@SP')
-            self.writeAssembly('A=M')
-            self.writeAssembly('M=D')
-            self.writeAssembly('@SP')
-            self.writeAssembly('M=M+1\n')
-
-        if command == 'C_POP':
-            if segment not in [
-                'local', 'argument', 'this', 'that', 'static', 'temp', 'pointer'
-            ]:
-                raise SyntaxError(f"Unknown segment for push: '{segment}' at line {line}")
-
-            self.writeAssembly(f"// pop {segment} {index}")
-            if segment == 'static':
-                self.writeAssembly(f"@{self.c_file}.{index}")
-            elif segment == 'temp':
-                self.writeAssembly(f"@{index + 5}")
-            else:
-                self.writeAssembly(f"@{index}")
-
+        self.writeAssembly(f"// push {segment} {index}")
+        if segment == 'static':
+            self.writeAssembly(f"@{self.c_file}.{index}")
+        elif segment == 'temp':
+            self.writeAssembly(f"@{index + 5}")
+        else:
+            self.writeAssembly(f"@{index}")
+        if segment not in ['static', 'temp']:
             self.writeAssembly('D=A')
 
-            if segment == 'local':
-                self.writeAssembly('@LCL')
-            if segment == 'argument':
-                self.writeAssembly('@ARG')
-            if segment in ['this', 'pointer']:
-                self.writeAssembly('@THIS')
-            if segment == 'that':
-                self.writeAssembly('@THAT')
-            if segment not in ['static', 'temp', 'pointer']:
-                self.writeAssembly('D=D+M')
-            if segment == 'pointer':
-                self.writeAssembly('D=D+A')
-
-            self.writeAssembly('@R13')
-            self.writeAssembly('M=D')
-            self.writeAssembly('@SP')
-            self.writeAssembly('AM=M-1')
+        if segment == 'local':
+            self.writeAssembly('@LCL')
+        if segment == 'argument':
+            self.writeAssembly('@ARG')
+        if segment in ['this', 'pointer']:
+            self.writeAssembly('@THIS')
+        if segment == 'that':
+            self.writeAssembly('@THAT')
+        if segment in ['local', 'argument', 'this', 'that']:
+            self.writeAssembly('A=D+M')
+        if segment == 'pointer':
+            self.writeAssembly('A=D+A')
+        if segment != 'constant':
             self.writeAssembly('D=M')
-            self.writeAssembly('@R13')
-            self.writeAssembly('A=M')
-            self.writeAssembly('M=D\n')
 
-    def writeLabel(self, _: int, label: str) -> None:
+        self.writeAssembly('@SP')
+        self.writeAssembly('A=M')
+        self.writeAssembly('M=D')
+        self.writeAssembly('@SP')
+        self.writeAssembly('M=M+1\n')
+
+    def writePop(self, segment: str, index: int, *_) -> None:
+        """
+        Write the assembly code for the pop command.
+        """
+        if segment not in [
+            'local', 'argument', 'this', 'that', 'static', 'temp', 'pointer'
+        ]:
+            raise SyntaxError(f"Unknown segment for push: '{segment}' at line {index}")
+
+        self.writeAssembly(f"// pop {segment} {index}")
+        if segment == 'static':
+            self.writeAssembly(f"@{self.c_file}.{index}")
+        elif segment == 'temp':
+            self.writeAssembly(f"@{index + 5}")
+        else:
+            self.writeAssembly(f"@{index}")
+
+        self.writeAssembly('D=A')
+
+        if segment == 'local':
+            self.writeAssembly('@LCL')
+        if segment == 'argument':
+            self.writeAssembly('@ARG')
+        if segment in ['this', 'pointer']:
+            self.writeAssembly('@THIS')
+        if segment == 'that':
+            self.writeAssembly('@THAT')
+        if segment not in ['static', 'temp', 'pointer']:
+            self.writeAssembly('D=D+M')
+        if segment == 'pointer':
+            self.writeAssembly('D=D+A')
+
+        self.writeAssembly('@R13')
+        self.writeAssembly('M=D')
+        self.writeAssembly('@SP')
+        self.writeAssembly('AM=M-1')
+        self.writeAssembly('D=M')
+        self.writeAssembly('@R13')
+        self.writeAssembly('A=M')
+        self.writeAssembly('M=D\n')
+
+    def writeLabel(self, label: str, *_) -> None:
         self.writeAssembly(f"// label {label}")
         self.writeAssembly(f"({label})\n")
 
-    def writeGoto(self, _: int, label: str) -> None:
+    def writeGoto(self, label: str, *_) -> None:
         self.writeAssembly(f"// goto {label}")
         self.writeAssembly(f"@{label}")
         self.writeAssembly('0;JMP\n')
 
-    def writeIf(self, _: int, label: str) -> None:
+    def writeIf(self, label: str, *_) -> None:
         self.writeAssembly(f"// if-goto {label}")
         self.writeAssembly('@SP')
         self.writeAssembly('AM=M-1')
@@ -187,18 +193,18 @@ class VMCodeWriter:
         self.writeAssembly(f"@{label}")
         self.writeAssembly('D;JNE\n')
 
-    def writeFunction(self, _: int, functionName: str, numLocals: int) -> None:
+    def writeFunction(self, functionName: str, numLocals: int, *_) -> None:
         self.writeAssembly(f"// function {functionName} {numLocals}")
         self.writeAssembly(f"({functionName})")
 
-        for _ in range(numLocals):
-            self.writeAssembly('@SP')
+        for i in range(numLocals):
+            self.writeAssembly(f"@SP // Initialize local variable {i}")
             self.writeAssembly('A=M')
             self.writeAssembly('M=0')
             self.writeAssembly('@SP')
-            self.writeAssembly('M=M+1')
+            self.writeAssembly('M=M+1\n')
 
-    def writeCall(self, _: int, functionName: str, numArgs: int) -> None:
+    def writeCall(self, functionName: str, numArgs: int, *_) -> None:
         self.writeAssembly(f"// call {functionName} {numArgs}")
 
         return_label = f"RETURN_{functionName}_{self.label_id}"
@@ -259,7 +265,7 @@ class VMCodeWriter:
         self.writeAssembly('0;JMP')
         self.writeAssembly(f"({return_label})\n")
 
-    def writeReturn(self, _: int) -> None:
+    def writeReturn(self, *_) -> None:
         self.writeAssembly('// return')
 
         self.writeAssembly('@LCL')
