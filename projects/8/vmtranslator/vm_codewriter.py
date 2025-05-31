@@ -102,7 +102,7 @@ class VMCodeWriter:
             'constant',
             'local', 'argument', 'this', 'that', 'static', 'temp', 'pointer'
         ]:
-            raise SyntaxError(f"Unknown segment for push: '{segment}' at line {index}") # TODO: aw
+            raise SyntaxError(f"Unknown segment for push: '{segment}' at line {self.c_line}")
 
         self.writeAssembly(f"// push {segment} {index}")
         if segment == 'static':
@@ -142,7 +142,7 @@ class VMCodeWriter:
         if segment not in [
             'local', 'argument', 'this', 'that', 'static', 'temp', 'pointer'
         ]:
-            raise SyntaxError(f"Unknown segment for push: '{segment}' at line {index}")
+            raise SyntaxError(f"Unknown segment for push: '{segment}' at line {self.c_line}")
 
         self.writeAssembly(f"// pop {segment} {index}")
         if segment == 'static':
