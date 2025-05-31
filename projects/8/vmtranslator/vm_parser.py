@@ -16,6 +16,27 @@ class CTypes(Enum):
     C_RETURN = 'C_RETURN'
 
 
+INSTRUCTION_TYPES = {
+    'add':      CTypes.C_ARITHMETIC,
+    'sub':      CTypes.C_ARITHMETIC,
+    'neg':      CTypes.C_ARITHMETIC,
+    'eq':       CTypes.C_ARITHMETIC,
+    'gt':       CTypes.C_ARITHMETIC,
+    'lt':       CTypes.C_ARITHMETIC,
+    'and':      CTypes.C_ARITHMETIC,
+    'or':       CTypes.C_ARITHMETIC,
+    'not':      CTypes.C_ARITHMETIC,
+    'push':     CTypes.C_PUSH,
+    'pop':      CTypes.C_POP,
+    'label':    CTypes.C_LABEL,
+    'goto':     CTypes.C_GOTO,
+    'if-goto':  CTypes.C_IF,
+    'function': CTypes.C_FUNCTION,
+    'call':     CTypes.C_CALL,
+    'return':   CTypes.C_RETURN
+}
+
+
 class VMParser:
     """
     A simple parser for .vm files.
@@ -55,26 +76,10 @@ class VMParser:
         return the type of the current command.
         """
         instruction_parts = self.instruction[0].split(' ')
-        instruction = instruction_parts[0]
-        if instruction in ['add', 'sub', 'neg', 'eq', 'gt', 'lt', 'and', 'or', 'not']:
-            return CTypes.C_ARITHMETIC
-        if instruction == 'push':
-            return CTypes.C_PUSH
-        if instruction == 'pop':
-            return CTypes.C_POP
-        if instruction == 'label':
-            return CTypes.C_LABEL
-        if instruction == 'goto':
-            return CTypes.C_GOTO
-        if instruction == 'if-goto':
-            return CTypes.C_IF
-        if instruction == 'function':
-            return CTypes.C_FUNCTION
-        if instruction == 'call':
-            return CTypes.C_CALL
-        if instruction == 'return':
-            return CTypes.C_RETURN
-        raise SyntaxError(f"Unknown command type: '{self.instruction[0]}' at line {self.instruction[1]}")
+        instruction = instruction_parts[0].lower()
+        if instruction not in INSTRUCTION_TYPES.keys():
+            raise SyntaxError(f"Unknown command type: '{self.instruction[0]}' at line {self.instruction[1]}")
+        return INSTRUCTION_TYPES[instruction]
 
     def commandLine(self) -> int:
         """
