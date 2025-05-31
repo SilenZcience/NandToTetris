@@ -10,15 +10,27 @@ class VMCodeWriter:
         self.c_line = -1
 
     def writeAssembly(self, line: str) -> None:
+        """
+        Write a line of assembly code to the output file.
+        If the line does not start with '//' or '(', it will be indented.
+        """
         if not (line.startswith('//') or line.startswith('(')):
             self.f_out.write('    ')
         self.f_out.write(f"{line}\n")
 
     def setCurrentFileName(self, file_name: str) -> None:
+        """
+        Set the current file name being processed.
+        This is used to generate unique static variable names.
+        """
         file_name = file_name.replace('\\', '_').replace('/', '_')
         self.c_file = ''.join(filter(lambda x: x.isalnum() or x in '_-.', file_name))
 
     def setCurrentLine(self, line: int) -> None:
+        """
+        Set the current line number being processed.
+        This is used for error reporting and debugging.
+        """
         self.c_line = line
 
     def __del__(self):
@@ -177,15 +189,24 @@ class VMCodeWriter:
         self.writeAssembly('M=D\n')
 
     def writeLabel(self, label: str, *_) -> None:
+        """
+        Write the assembly code for a label.
+        """
         self.writeAssembly(f"// label {label}")
         self.writeAssembly(f"({label})\n")
 
     def writeGoto(self, label: str, *_) -> None:
+        """
+        Write the assembly code for the goto command.
+        """
         self.writeAssembly(f"// goto {label}")
         self.writeAssembly(f"@{label}")
         self.writeAssembly('0;JMP\n')
 
     def writeIf(self, label: str, *_) -> None:
+        """
+        Write the assembly code for the if-goto command.
+        """
         self.writeAssembly(f"// if-goto {label}")
         self.writeAssembly('@SP')
         self.writeAssembly('AM=M-1')
@@ -194,6 +215,10 @@ class VMCodeWriter:
         self.writeAssembly('D;JNE\n')
 
     def writeFunction(self, functionName: str, numLocals: int, *_) -> None:
+        """
+        Write the assembly code for the function command.
+        This initializes the function with the specified number of local variables.
+        """
         self.writeAssembly(f"// function {functionName} {numLocals}")
         self.writeAssembly(f"({functionName})")
 
@@ -205,6 +230,10 @@ class VMCodeWriter:
             self.writeAssembly('M=M+1\n')
 
     def writeCall(self, functionName: str, numArgs: int, *_) -> None:
+        """
+        Write the assembly code for the call command.
+        This saves the return address and the current state of the segments.
+        """
         self.writeAssembly(f"// call {functionName} {numArgs}")
 
         return_label = f"RETURN_{functionName}_{self.label_id}"
@@ -243,6 +272,10 @@ class VMCodeWriter:
         self.writeAssembly(f"({return_label})\n")
 
     def writeReturn(self, *_) -> None:
+        """
+        Write the assembly code for the return command.
+        This restores the caller's state and returns control to the caller.
+        """
         self.writeAssembly('// return')
 
         self.writeAssembly('@LCL // save LCL in R13')

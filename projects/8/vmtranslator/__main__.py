@@ -31,6 +31,9 @@ class VMTranslator:
             self.codewriter.writeInit()
 
     def translate(self, in_file: str):
+        """
+        Translates a single .vm file into assembly code.
+        """
         parser: VMParser = VMParser(in_file)
         self.codewriter.setCurrentFileName(in_file)
 
@@ -89,6 +92,10 @@ def contains_sys_init(vm_files):
 
 
 def main(args: list) -> int:
+    """
+    Main function to handle command line arguments and initiate the translation process.
+    Expects a single argument which can be a .vm file or a directory containing .vm files.
+    """
     if '-h' in args or '--help' in args or len(args) != 1:
         print(f"{MSG_INFO} Usage: python -m vmtranslator [<file.vm> | <directory>]")
         print(f"{MSG_INFO} Translates .vm files to a single .asm file.")
