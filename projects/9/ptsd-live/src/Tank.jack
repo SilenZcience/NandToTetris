@@ -1,0 +1,204 @@
+class Tank {
+    field int x;
+    field int pipeAngle; // degrees, 0 = up
+    field int pipeLen;
+
+    field Array sinTable, cosTable;
+
+    constructor Tank new(int startX) {
+        let x = startX;
+        let pipeAngle = 5;
+        let pipeLen = 16;
+        let sinTable = Array.new(37);
+        let cosTable = Array.new(37);
+        do initTrigTables();
+        return this;
+    }
+
+    method void initTrigTables() {
+        let sinTable[0] = -1000; let cosTable[0] = 0;     // -90°
+        let sinTable[1] = -996;  let cosTable[1] = 87;    // -85°
+        let sinTable[2] = -985;  let cosTable[2] = 174;   // -80°
+        let sinTable[3] = -966;  let cosTable[3] = 259;   // -75°
+        let sinTable[4] = -940;  let cosTable[4] = 342;   // -70°
+        let sinTable[5] = -906;  let cosTable[5] = 422;   // -65°
+        let sinTable[6] = -866;  let cosTable[6] = 500;   // -60°
+        let sinTable[7] = -819;  let cosTable[7] = 574;   // -55°
+        let sinTable[8] = -766;  let cosTable[8] = 643;   // -50°
+        let sinTable[9] = -707;  let cosTable[9] = 707;   // -45°
+        let sinTable[10] = -643; let cosTable[10] = 766;  // -40°
+        let sinTable[11] = -574; let cosTable[11] = 819;  // -35°
+        let sinTable[12] = -500; let cosTable[12] = 866;  // -30°
+        let sinTable[13] = -422; let cosTable[13] = 906;  // -25°
+        let sinTable[14] = -342; let cosTable[14] = 940;  // -20°
+        let sinTable[15] = -259; let cosTable[15] = 966;  // -15°
+        let sinTable[16] = -174; let cosTable[16] = 985;  // -10°
+        let sinTable[17] = -87;  let cosTable[17] = 996;  // -5°
+        let sinTable[18] = 0;    let cosTable[18] = 1000; // 0°
+        let sinTable[19] = 87;   let cosTable[19] = 996;  // +5°
+        let sinTable[20] = 174;  let cosTable[20] = 985;  // +10°
+        let sinTable[21] = 259;  let cosTable[21] = 966;  // +15°
+        let sinTable[22] = 342;  let cosTable[22] = 940;  // +20°
+        let sinTable[23] = 422;  let cosTable[23] = 906;  // +25°
+        let sinTable[24] = 500;  let cosTable[24] = 866;  // +30°
+        let sinTable[25] = 574;  let cosTable[25] = 819;  // +35°
+        let sinTable[26] = 643;  let cosTable[26] = 766;  // +40°
+        let sinTable[27] = 707;  let cosTable[27] = 707;  // +45°
+        let sinTable[28] = 766;  let cosTable[28] = 643;  // +50°
+        let sinTable[29] = 819;  let cosTable[29] = 574;  // +55°
+        let sinTable[30] = 866;  let cosTable[30] = 500;  // +60°
+        let sinTable[31] = 906;  let cosTable[31] = 422;  // +65°
+        let sinTable[32] = 940;  let cosTable[32] = 342;  // +70°
+        let sinTable[33] = 966;  let cosTable[33] = 259;  // +75°
+        let sinTable[34] = 985;  let cosTable[34] = 174;  // +80°
+        let sinTable[35] = 996;  let cosTable[35] = 87;   // +85°
+        let sinTable[36] = 1000; let cosTable[36] = 0;    // +90°
+        return;
+    }
+
+    method void moveLeft(Array groundHeights) {
+        do Screen.setColor(false);
+        do draw(groundHeights); // Clear previous position
+        do Screen.setColor(true);
+        if (x > 6) {
+            let x = x - 2;
+        }
+        do draw(groundHeights); // Draw new position
+        return;
+    }
+
+    method void moveRight(Array groundHeights) {
+        do Screen.setColor(false);
+        do draw(groundHeights); // Clear previous position
+        do Screen.setColor(true);
+        if (x < 506) {
+            let x = x + 2;
+        }
+        do draw(groundHeights); // Draw new position
+        return;
+    }
+
+    method void rotateLeft(Array groundHeights) {
+        do Screen.setColor(false);
+        do draw(groundHeights); // Clear previous position
+        do Screen.setColor(true);
+        if (pipeAngle > -90) { // Limit left rotation
+            let pipeAngle = pipeAngle - 5;
+        }
+        do draw(groundHeights); // Draw new position
+        return;
+    }
+
+    method void rotateRight(Array groundHeights) {
+        do Screen.setColor(false);
+        do draw(groundHeights); // Clear previous position
+        do Screen.setColor(true);
+        if (pipeAngle < 90) { // Limit right rotation
+            let pipeAngle = pipeAngle + 5;
+        }
+        do draw(groundHeights); // Draw new position
+        return;
+    }
+
+    method void decreasePower(Array groundHeights) {
+        do Screen.setColor(false);
+        do draw(groundHeights); // Clear previous position
+        do Screen.setColor(true);
+        if (pipeLen > 9) { // Limit left rotation
+            let pipeLen = pipeLen - 1;
+        }
+        do draw(groundHeights); // Draw new position
+        return;
+    }
+
+    method void increasePower(Array groundHeights) {
+        do Screen.setColor(false);
+        do draw(groundHeights); // Clear previous position
+        do Screen.setColor(true);
+        if (pipeLen < 25) { // Limit right rotation
+            let pipeLen = pipeLen + 1;
+        }
+        do draw(groundHeights); // Draw new position
+        return;
+    }
+
+    method void fire(Array groundHeights) {
+        var int pX, pY;
+        var Projectile projectile;
+        let projectile = Projectile.new(x, groundHeights[x] - 5, pipeLen, pipeAngle, sinTable, cosTable);
+        while (projectile.isActive()) {
+            do projectile.update();
+            do draw(groundHeights);
+            let pX = projectile.getX();
+            // Hit the ground?
+            if (projectile.getY() > groundHeights[Math.max(0, Math.min(511, pX))]) {
+                if ((pX > -1) & (pX < 512)) {
+                    do destroyGround(groundHeights, pX, 12);
+                }
+                do projectile.deactivate();
+            } else {
+                do Sys.wait(10);
+            }
+        }
+
+        do projectile.free(); // Free the projectile memory
+        return;
+    }
+
+    method void destroyGround(Array groundHeights, int centerX, int radius) {
+        var int x, dx, minX, maxX;
+        let minX = Math.max(centerX - radius, 0);
+        let maxX = Math.min(centerX + radius, 511);
+        let x = minX;
+        while (x < maxX) {
+            let dx = x - centerX;
+            // Circle equation: dx^2 + dy^2 < r^2
+            // Lower the ground in a circular area
+            if ((dx * dx) < (radius * radius)) {
+                do Screen.setColor(false);
+                do Screen.drawLine(x, groundHeights[x], x, 255);
+                let groundHeights[x] = Math.min(groundHeights[x] + (radius - Math.abs(dx)), 255);
+                do Screen.setColor(true);
+                do Screen.drawLine(x, groundHeights[x], x, 255); // Redraw the ground
+            }
+            let x = x + 1;
+        }
+        return;
+    }
+
+    method void draw(Array groundHeights) {
+        var int y, pipeX, pipeY, idx, sin, cos;
+
+        // Draw the tank body
+        let y = groundHeights[x] - 9; // 8 pixels tall
+        do Screen.drawRectangle(x - 6, y, x + 5, y + 8);
+
+        // Draw the tank pipe
+        // Convert pipeAngle (-60 to +60 by 5) to index (0 to 24)
+        let idx = (pipeAngle + 90) / 5;
+        let sin = sinTable[idx];
+        let cos = cosTable[idx];
+
+        let pipeX = x + ((pipeLen * sin) / 1000);
+        let pipeY = y + 4 - ((pipeLen * cos) / 1000);
+        if (pipeX < 0) {
+            let pipeX = 0;
+        }
+        if (pipeX > 511) {
+            let pipeX = 511;
+        }
+        if (pipeY < 0) {
+            let pipeY = 0;
+        }
+        if (pipeY > 255) {
+            let pipeY = 255;
+        }
+        do Screen.drawLine(x, y + 4, pipeX, pipeY);
+        return;
+    }
+
+	method void free() {
+		do Memory.deAlloc(this);
+		return;
+	}
+}

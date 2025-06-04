@@ -1,0 +1,81 @@
+class PTSDLive {
+    field Array groundHeights;
+    field Tank playerTank;
+
+    constructor PTSDLive new() {
+        let groundHeights = Array.new(512);
+        let playerTank = Tank.new(30);
+        do initGround();
+        do drawGround();
+        do playerTank.draw(groundHeights);
+        return this;
+    }
+
+    method void initGround() {
+        var int x;
+        let x = 0;
+        while (x < 512) {
+            let groundHeights[x] = 150; // Flat ground at y=150
+            let x = x + 1;
+        }
+        return;
+    }
+
+    method void drawGround() {
+        var int x;
+        var int y;
+        let x = 0;
+        // do Screen.setColor(true);
+        while (x < 512) {
+            let y = groundHeights[x];
+            do Screen.drawLine(x, y, x, 255); // Draw vertical line
+            let x = x + 1;
+        }
+        return;
+    }
+
+    method void run() {
+        var char key;
+
+        while (true) {
+            let key = Keyboard.keyPressed();
+            if ((key = 97) | (key = 65)) { // 'a' / 'A'
+                do playerTank.moveLeft(groundHeights);
+                do drawGround();
+            }
+            if ((key = 100) | (key = 68)) { // 'd' / 'D'
+                do playerTank.moveRight(groundHeights);
+                do drawGround();
+            }
+            if ((key = 130)) { // left arrow
+                do playerTank.rotateLeft(groundHeights);
+            }
+            if ((key = 132)) { // right arrow
+                do playerTank.rotateRight(groundHeights);
+            }
+            if ((key = 131)) { // up arrow
+                do playerTank.increasePower(groundHeights);
+            }
+            if ((key = 133)) { // down arrow
+                do playerTank.decreasePower(groundHeights);
+            }
+            if ((key = 32)) { // space bar
+                do playerTank.fire(groundHeights);
+                do drawGround();
+            }
+
+            do Sys.wait(10); // Small delay for animation
+
+
+
+            // do Output.printChar(key);
+        }
+        return;
+    }
+
+	method void free() {
+        do playerTank.free();
+		do Memory.deAlloc(this);
+		return;
+	}
+}

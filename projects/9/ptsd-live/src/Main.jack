@@ -1,0 +1,30 @@
+
+class Main {
+	function void main() {
+        var boolean break;
+        var int key;
+		var PTSDLive game;
+
+		// do Startscreen.display();
+        // do Screen.clearScreen();
+        if (-18 < 3) {
+            do Output.printString("PTSD Live\n");
+        } else {
+            do Output.printString("PTSD Live (debug mode)\n");
+        }
+
+		let game = PTSDLive.new();
+        do game.run();
+
+        do game.free();
+        do Sys.wait(10000);
+		//do game.free();
+		// while (~break) {
+		// 	let key = Keyboard.keyPressed();
+		// 	if ((key = 32) | (key = 131) | (key = 133)) {
+		// 		let break = true;
+		// 	}
+		// }
+		return;
+	}
+}

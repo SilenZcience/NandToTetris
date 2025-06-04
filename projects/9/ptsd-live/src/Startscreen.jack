@@ -1,0 +1,20 @@
+class Startscreen {
+    function void display() {
+		var boolean break;
+		var int key;
+		var String str;
+
+		let str = "PTSD Live:";
+		do Output.moveCursor(6, 10);
+		do Output.printString(str);
+		do str.dispose();
+
+		while (~break) {
+			let key = Keyboard.keyPressed();
+			if ((key = 32) | (key = 131) | (key = 133)) {
+				let break = true;
+			}
+		}
+        return;
+    }
+}
