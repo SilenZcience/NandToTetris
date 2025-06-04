@@ -36,12 +36,12 @@ class PTSDLive {
 
     method void run() {
         var char key;
-
-        while (true) {
+        // TODO: turn based system and enemies ...
+        while (true) { // TODO: probably redo render system to do a full render after every action.
             let key = Keyboard.keyPressed();
             if ((key = 97) | (key = 65)) { // 'a' / 'A'
                 do playerTank.moveLeft(groundHeights);
-                do drawGround();
+                do drawGround(); // TODO: only move if ground is somewhat flat
             }
             if ((key = 100) | (key = 68)) { // 'd' / 'D'
                 do playerTank.moveRight(groundHeights);

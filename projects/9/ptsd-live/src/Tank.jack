@@ -170,7 +170,7 @@ class Tank {
         var int y, pipeX, pipeY, idx, sin, cos;
 
         // Draw the tank body
-        let y = groundHeights[x] - 9; // 8 pixels tall
+        let y = groundHeights[x] - 9; // 8 pixels tall // TODO: maybe real body graphic instead of rectangle
         do Screen.drawRectangle(x - 6, y, x + 5, y + 8);
 
         // Draw the tank pipe
@@ -179,20 +179,9 @@ class Tank {
         let sin = sinTable[idx];
         let cos = cosTable[idx];
 
-        let pipeX = x + ((pipeLen * sin) / 1000);
-        let pipeY = y + 4 - ((pipeLen * cos) / 1000);
-        if (pipeX < 0) {
-            let pipeX = 0;
-        }
-        if (pipeX > 511) {
-            let pipeX = 511;
-        }
-        if (pipeY < 0) {
-            let pipeY = 0;
-        }
-        if (pipeY > 255) {
-            let pipeY = 255;
-        }
+        let pipeX = Math.max(0, Math.max(511, x + ((pipeLen * sin) / 1000)));
+        let pipeY = Math.max(0, Math.max(255, y + 4 - ((pipeLen * cos) / 1000)));
+
         do Screen.drawLine(x, y + 4, pipeX, pipeY);
         return;
     }
