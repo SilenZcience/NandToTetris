@@ -7,6 +7,7 @@ class VMCodeWriter:
 
         self.label_id = 0
         self.c_file = ''
+        self.c_function = ''
         self.c_line = -1
 
     def writeAssembly(self, line: str) -> None:
@@ -193,14 +194,14 @@ class VMCodeWriter:
         Write the assembly code for a label.
         """
         self.writeAssembly(f"// label {label}")
-        self.writeAssembly(f"({label})\n")
+        self.writeAssembly(f"({self.c_function}${label})\n")
 
     def writeGoto(self, label: str, *_) -> None:
         """
         Write the assembly code for the goto command.
         """
         self.writeAssembly(f"// goto {label}")
-        self.writeAssembly(f"@{label}")
+        self.writeAssembly(f"@{self.c_function}${label}")
         self.writeAssembly('0;JMP\n')
 
     def writeIf(self, label: str, *_) -> None:
@@ -211,23 +212,8 @@ class VMCodeWriter:
         self.writeAssembly('@SP')
         self.writeAssembly('AM=M-1')
         self.writeAssembly('D=M')
-        self.writeAssembly(f"@{label}")
+        self.writeAssembly(f"@{self.c_function}${label}")
         self.writeAssembly('D;JNE\n')
-
-    def writeFunction(self, functionName: str, numLocals: int, *_) -> None:
-        """
-        Write the assembly code for the function command.
-        This initializes the function with the specified number of local variables.
-        """
-        self.writeAssembly(f"// function {functionName} {numLocals}")
-        self.writeAssembly(f"({functionName})")
-
-        for i in range(numLocals):
-            self.writeAssembly(f"@SP // Initialize local variable {i}")
-            self.writeAssembly('A=M')
-            self.writeAssembly('M=0')
-            self.writeAssembly('@SP')
-            self.writeAssembly('M=M+1\n')
 
     def writeCall(self, functionName: str, numArgs: int, *_) -> None:
         """
@@ -270,6 +256,22 @@ class VMCodeWriter:
         self.writeAssembly(f"@{functionName} // transfer control to function")
         self.writeAssembly('0;JMP')
         self.writeAssembly(f"({return_label})\n")
+
+    def writeFunction(self, functionName: str, numLocals: int, *_) -> None:
+        """
+        Write the assembly code for the function command.
+        This initializes the function with the specified number of local variables.
+        """
+        self.c_function = functionName
+        self.writeAssembly(f"// function {functionName} {numLocals}")
+        self.writeAssembly(f"({functionName})")
+
+        for i in range(numLocals):
+            self.writeAssembly(f"@SP // Initialize local variable {i}")
+            self.writeAssembly('A=M')
+            self.writeAssembly('M=0')
+            self.writeAssembly('@SP')
+            self.writeAssembly('M=M+1\n')
 
     def writeReturn(self, *_) -> None:
         """
