@@ -118,11 +118,9 @@ def main(args: list) -> int:
             print(f"{MSG_INFO} Successfully translated '{vm_file}'")
         except (FileNotFoundError, SyntaxError, EOFError) as e:
             print(f"{MSG_ERROR} {e}")
-            del vm_translator
             return 4
     print(f"\n{MSG_INFO} Translation complete. Output written to '{out_file}'")
 
-    del vm_translator
     return 0
 
 
