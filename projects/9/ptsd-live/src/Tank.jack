@@ -7,7 +7,7 @@ class Tank {
 
     constructor Tank new(int startX) {
         let x = startX;
-        let pipeAngle = 5;
+        let pipeAngle = 0;
         let pipeLen = 16;
         let sinTable = Array.new(37);
         let cosTable = Array.new(37);
@@ -56,69 +56,69 @@ class Tank {
         return;
     }
 
-    method void moveLeft(Array groundHeights) {
-        do Screen.setColor(false);
-        do draw(groundHeights); // Clear previous position
-        do Screen.setColor(true);
-        if (x > 6) {
+    method void moveLeft(Array groundHeights) { // TODO: add fuel
+        if ((x > 6) & (Math.abs(groundHeights[x - 4] - groundHeights[x]) < 10)) {
+            do Screen.setColor(false);
+            do draw(groundHeights); // Clear previous position
+            do Screen.setColor(true);
             let x = x - 2;
+            do draw(groundHeights); // Draw new position
         }
-        do draw(groundHeights); // Draw new position
         return;
     }
 
     method void moveRight(Array groundHeights) {
-        do Screen.setColor(false);
-        do draw(groundHeights); // Clear previous position
-        do Screen.setColor(true);
-        if (x < 506) {
+        if ((x < 506) & (Math.abs(groundHeights[x + 4] - groundHeights[x]) < 10)) {
+            do Screen.setColor(false);
+            do draw(groundHeights); // Clear previous position
+            do Screen.setColor(true);
             let x = x + 2;
+            do draw(groundHeights); // Draw new position
         }
-        do draw(groundHeights); // Draw new position
         return;
     }
 
     method void rotateLeft(Array groundHeights) {
-        do Screen.setColor(false);
-        do draw(groundHeights); // Clear previous position
-        do Screen.setColor(true);
         if (pipeAngle > -90) { // Limit left rotation
+            do Screen.setColor(false);
+            do draw(groundHeights); // Clear previous position
+            do Screen.setColor(true);
             let pipeAngle = pipeAngle - 5;
+            do draw(groundHeights); // Draw new position
         }
-        do draw(groundHeights); // Draw new position
         return;
     }
 
     method void rotateRight(Array groundHeights) {
-        do Screen.setColor(false);
-        do draw(groundHeights); // Clear previous position
-        do Screen.setColor(true);
         if (pipeAngle < 90) { // Limit right rotation
+            do Screen.setColor(false);
+            do draw(groundHeights); // Clear previous position
+            do Screen.setColor(true);
             let pipeAngle = pipeAngle + 5;
+            do draw(groundHeights); // Draw new position
         }
-        do draw(groundHeights); // Draw new position
         return;
     }
 
     method void decreasePower(Array groundHeights) {
-        do Screen.setColor(false);
-        do draw(groundHeights); // Clear previous position
-        do Screen.setColor(true);
         if (pipeLen > 9) { // Limit left rotation
+            do Screen.setColor(false);
+            do draw(groundHeights); // Clear previous position
+            do Screen.setColor(true);
             let pipeLen = pipeLen - 1;
+            do draw(groundHeights); // Draw new position
         }
-        do draw(groundHeights); // Draw new position
         return;
     }
 
     method void increasePower(Array groundHeights) {
-        do Screen.setColor(false);
-        do draw(groundHeights); // Clear previous position
-        do Screen.setColor(true);
         if (pipeLen < 25) { // Limit right rotation
+            do Screen.setColor(false);
+            do draw(groundHeights); // Clear previous position
+            do Screen.setColor(true);
             let pipeLen = pipeLen + 1;
+            do draw(groundHeights); // Draw new position
         }
-        do draw(groundHeights); // Draw new position
         return;
     }
 
@@ -163,7 +163,7 @@ class Tank {
             }
             let x = x + 1;
         }
-        return;
+        return; // TODO: add gravity to tank in case projectiles hit the ground below it
     }
 
     method void draw(Array groundHeights) {
@@ -179,8 +179,8 @@ class Tank {
         let sin = sinTable[idx];
         let cos = cosTable[idx];
 
-        let pipeX = Math.max(0, Math.max(511, x + ((pipeLen * sin) / 1000)));
-        let pipeY = Math.max(0, Math.max(255, y + 4 - ((pipeLen * cos) / 1000)));
+        let pipeX = Math.max(0, Math.min(511, x + ((pipeLen * sin) / 1000)));
+        let pipeY = Math.max(0, Math.min(255, y + 4 - ((pipeLen * cos) / 1000)));
 
         do Screen.drawLine(x, y + 4, pipeX, pipeY);
         return;

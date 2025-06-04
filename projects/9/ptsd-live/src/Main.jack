@@ -7,11 +7,6 @@ class Main {
 
 		// do Startscreen.display();
         // do Screen.clearScreen();
-        if (-18 < 3) {
-            do Output.printString("PTSD Live\n");
-        } else {
-            do Output.printString("PTSD Live (debug mode)\n");
-        }
 
 		let game = PTSDLive.new();
         do game.run();

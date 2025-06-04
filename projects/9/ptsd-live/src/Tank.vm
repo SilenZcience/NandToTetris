@@ -4,7 +4,7 @@ call Memory.alloc 1
 pop pointer 0
 push argument 0
 pop this 0
-push constant 5
+push constant 0
 pop this 1
 push constant 16
 pop this 2
@@ -637,6 +637,29 @@ return
 function Tank.moveLeft 0
 push argument 0
 pop pointer 0
+push this 0
+push constant 6
+gt
+push this 0
+push constant 4
+sub
+push argument 1
+add
+pop pointer 1
+push that 0
+push this 0
+push argument 1
+add
+pop pointer 1
+push that 0
+sub
+call Math.abs 1
+push constant 10
+lt
+and
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
 push constant 0
 call Screen.setColor 1
 pop temp 0
@@ -649,25 +672,42 @@ not
 call Screen.setColor 1
 pop temp 0
 push this 0
-push constant 6
-gt
-if-goto IF_TRUE0
-goto IF_FALSE0
-label IF_TRUE0
-push this 0
 push constant 2
 sub
 pop this 0
-label IF_FALSE0
 push pointer 0
 push argument 1
 call Tank.draw 2
 pop temp 0
+label IF_FALSE0
 push constant 0
 return
 function Tank.moveRight 0
 push argument 0
 pop pointer 0
+push this 0
+push constant 506
+lt
+push this 0
+push constant 4
+add
+push argument 1
+add
+pop pointer 1
+push that 0
+push this 0
+push argument 1
+add
+pop pointer 1
+push that 0
+sub
+call Math.abs 1
+push constant 10
+lt
+and
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
 push constant 0
 call Screen.setColor 1
 pop temp 0
@@ -680,36 +720,19 @@ not
 call Screen.setColor 1
 pop temp 0
 push this 0
-push constant 506
-lt
-if-goto IF_TRUE0
-goto IF_FALSE0
-label IF_TRUE0
-push this 0
 push constant 2
 add
 pop this 0
-label IF_FALSE0
 push pointer 0
 push argument 1
 call Tank.draw 2
 pop temp 0
+label IF_FALSE0
 push constant 0
 return
 function Tank.rotateLeft 0
 push argument 0
 pop pointer 0
-push constant 0
-call Screen.setColor 1
-pop temp 0
-push pointer 0
-push argument 1
-call Tank.draw 2
-pop temp 0
-push constant 0
-not
-call Screen.setColor 1
-pop temp 0
 push this 1
 push constant 90
 neg
@@ -717,20 +740,6 @@ gt
 if-goto IF_TRUE0
 goto IF_FALSE0
 label IF_TRUE0
-push this 1
-push constant 5
-sub
-pop this 1
-label IF_FALSE0
-push pointer 0
-push argument 1
-call Tank.draw 2
-pop temp 0
-push constant 0
-return
-function Tank.rotateRight 0
-push argument 0
-pop pointer 0
 push constant 0
 call Screen.setColor 1
 pop temp 0
@@ -742,26 +751,26 @@ push constant 0
 not
 call Screen.setColor 1
 pop temp 0
+push this 1
+push constant 5
+sub
+pop this 1
+push pointer 0
+push argument 1
+call Tank.draw 2
+pop temp 0
+label IF_FALSE0
+push constant 0
+return
+function Tank.rotateRight 0
+push argument 0
+pop pointer 0
 push this 1
 push constant 90
 lt
 if-goto IF_TRUE0
 goto IF_FALSE0
 label IF_TRUE0
-push this 1
-push constant 5
-add
-pop this 1
-label IF_FALSE0
-push pointer 0
-push argument 1
-call Tank.draw 2
-pop temp 0
-push constant 0
-return
-function Tank.decreasePower 0
-push argument 0
-pop pointer 0
 push constant 0
 call Screen.setColor 1
 pop temp 0
@@ -773,26 +782,26 @@ push constant 0
 not
 call Screen.setColor 1
 pop temp 0
+push this 1
+push constant 5
+add
+pop this 1
+push pointer 0
+push argument 1
+call Tank.draw 2
+pop temp 0
+label IF_FALSE0
+push constant 0
+return
+function Tank.decreasePower 0
+push argument 0
+pop pointer 0
 push this 2
 push constant 9
 gt
 if-goto IF_TRUE0
 goto IF_FALSE0
 label IF_TRUE0
-push this 2
-push constant 1
-sub
-pop this 2
-label IF_FALSE0
-push pointer 0
-push argument 1
-call Tank.draw 2
-pop temp 0
-push constant 0
-return
-function Tank.increasePower 0
-push argument 0
-pop pointer 0
 push constant 0
 call Screen.setColor 1
 pop temp 0
@@ -805,20 +814,45 @@ not
 call Screen.setColor 1
 pop temp 0
 push this 2
+push constant 1
+sub
+pop this 2
+push pointer 0
+push argument 1
+call Tank.draw 2
+pop temp 0
+label IF_FALSE0
+push constant 0
+return
+function Tank.increasePower 0
+push argument 0
+pop pointer 0
+push this 2
 push constant 25
 lt
 if-goto IF_TRUE0
 goto IF_FALSE0
 label IF_TRUE0
-push this 2
-push constant 1
-add
-pop this 2
-label IF_FALSE0
+push constant 0
+call Screen.setColor 1
+pop temp 0
 push pointer 0
 push argument 1
 call Tank.draw 2
 pop temp 0
+push constant 0
+not
+call Screen.setColor 1
+pop temp 0
+push this 2
+push constant 1
+add
+pop this 2
+push pointer 0
+push argument 1
+call Tank.draw 2
+pop temp 0
+label IF_FALSE0
 push constant 0
 return
 function Tank.fire 3
@@ -1035,6 +1069,8 @@ add
 pop pointer 1
 push that 0
 pop local 5
+push constant 0
+push constant 511
 push this 0
 push this 2
 push local 4
@@ -1042,7 +1078,11 @@ call Math.multiply 2
 push constant 1000
 call Math.divide 2
 add
+call Math.min 2
+call Math.max 2
 pop local 1
+push constant 0
+push constant 255
 push local 0
 push constant 4
 add
@@ -1052,43 +1092,9 @@ call Math.multiply 2
 push constant 1000
 call Math.divide 2
 sub
+call Math.min 2
+call Math.max 2
 pop local 2
-push local 1
-push constant 0
-lt
-if-goto IF_TRUE0
-goto IF_FALSE0
-label IF_TRUE0
-push constant 0
-pop local 1
-label IF_FALSE0
-push local 1
-push constant 511
-gt
-if-goto IF_TRUE1
-goto IF_FALSE1
-label IF_TRUE1
-push constant 511
-pop local 1
-label IF_FALSE1
-push local 2
-push constant 0
-lt
-if-goto IF_TRUE2
-goto IF_FALSE2
-label IF_TRUE2
-push constant 0
-pop local 2
-label IF_FALSE2
-push local 2
-push constant 255
-gt
-if-goto IF_TRUE3
-goto IF_FALSE3
-label IF_TRUE3
-push constant 255
-pop local 2
-label IF_FALSE3
 push this 0
 push local 0
 push constant 4
