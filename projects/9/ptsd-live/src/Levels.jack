@@ -40,9 +40,6 @@ class Levels {
         if (level = 2) {
             return 3;
         }
-        if (level = 3) {
-            return 5;
-        }
         return 0;
     }
 

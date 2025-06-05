@@ -16,6 +16,9 @@ class Main {
                 let level = 1;
             }
             let running = Endscreen.display(gameWon, level);
+            if (Levels.tankAmount(level) = 0) {
+                let level = 1;
+            }
             do game.free();
         }
 

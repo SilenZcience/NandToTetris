@@ -12,7 +12,11 @@ class Endscreen {
 		do str.dispose();
 
         if (gameWon) {
-            let str = "You won the battle but the war is not over!";
+            if (Levels.tankAmount(level) = 0) {
+                let str = "You won the war! Congratulations!";
+            } else {
+                let str = "You won the battle but the war is not over!";
+            }
         } else {
             let str = "You got destroyed!";
         }
@@ -21,15 +25,21 @@ class Endscreen {
         do str.dispose();
 
         if (gameWon) {
-            let str = "Continue fighting?";
+            if (Levels.tankAmount(level) = 0) {
+                let str = "Restart the game?";
+            } else {
+                let str = "Continue fighting?";
+            }
         } else {
             let str = "Try again?";
         }
 		do Output.moveCursor(6, 8);
 		do Output.printString(str);
-        do Output.printString(" (Level ");
-        do Output.printInt(level);
-        do Output.printString(")");
+        if (Levels.tankAmount(level) > 0) {
+            do Output.printString(" (Level ");
+            do Output.printInt(level);
+            do Output.printString(")");
+        }
         do str.dispose();
 
 		let str = "w/d-key           to move horizontally";
