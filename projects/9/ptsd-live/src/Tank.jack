@@ -1,85 +1,146 @@
 class Tank {
-    field int x;
-    field int pipeAngle; // degrees, 0 = up
-    field int pipeLen;
+    field int x, y;
+    field int pipeAngle, pipeLen; // degrees, 0 = up
+    field int health, fuel;
+    field boolean destroyed;
 
-    field Array sinTable, cosTable;
+    static Array sinTable, cosTable;
 
-    constructor Tank new(int startX) {
-        let x = startX;
-        let pipeAngle = 0;
-        let pipeLen = 16;
-        let sinTable = Array.new(37);
-        let cosTable = Array.new(37);
-        do initTrigTables();
-        return this;
-    }
-
-    method void initTrigTables() {
-        let sinTable[0] = -1000; let cosTable[0] = 0;     // -90°
-        let sinTable[1] = -996;  let cosTable[1] = 87;    // -85°
-        let sinTable[2] = -985;  let cosTable[2] = 174;   // -80°
-        let sinTable[3] = -966;  let cosTable[3] = 259;   // -75°
-        let sinTable[4] = -940;  let cosTable[4] = 342;   // -70°
-        let sinTable[5] = -906;  let cosTable[5] = 422;   // -65°
-        let sinTable[6] = -866;  let cosTable[6] = 500;   // -60°
-        let sinTable[7] = -819;  let cosTable[7] = 574;   // -55°
-        let sinTable[8] = -766;  let cosTable[8] = 643;   // -50°
-        let sinTable[9] = -707;  let cosTable[9] = 707;   // -45°
-        let sinTable[10] = -643; let cosTable[10] = 766;  // -40°
-        let sinTable[11] = -574; let cosTable[11] = 819;  // -35°
-        let sinTable[12] = -500; let cosTable[12] = 866;  // -30°
-        let sinTable[13] = -422; let cosTable[13] = 906;  // -25°
-        let sinTable[14] = -342; let cosTable[14] = 940;  // -20°
-        let sinTable[15] = -259; let cosTable[15] = 966;  // -15°
-        let sinTable[16] = -174; let cosTable[16] = 985;  // -10°
-        let sinTable[17] = -87;  let cosTable[17] = 996;  // -5°
-        let sinTable[18] = 0;    let cosTable[18] = 1000; // 0°
-        let sinTable[19] = 87;   let cosTable[19] = 996;  // +5°
-        let sinTable[20] = 174;  let cosTable[20] = 985;  // +10°
-        let sinTable[21] = 259;  let cosTable[21] = 966;  // +15°
-        let sinTable[22] = 342;  let cosTable[22] = 940;  // +20°
-        let sinTable[23] = 422;  let cosTable[23] = 906;  // +25°
-        let sinTable[24] = 500;  let cosTable[24] = 866;  // +30°
-        let sinTable[25] = 574;  let cosTable[25] = 819;  // +35°
-        let sinTable[26] = 643;  let cosTable[26] = 766;  // +40°
-        let sinTable[27] = 707;  let cosTable[27] = 707;  // +45°
-        let sinTable[28] = 766;  let cosTable[28] = 643;  // +50°
-        let sinTable[29] = 819;  let cosTable[29] = 574;  // +55°
-        let sinTable[30] = 866;  let cosTable[30] = 500;  // +60°
-        let sinTable[31] = 906;  let cosTable[31] = 422;  // +65°
-        let sinTable[32] = 940;  let cosTable[32] = 342;  // +70°
-        let sinTable[33] = 966;  let cosTable[33] = 259;  // +75°
-        let sinTable[34] = 985;  let cosTable[34] = 174;  // +80°
-        let sinTable[35] = 996;  let cosTable[35] = 87;   // +85°
-        let sinTable[36] = 1000; let cosTable[36] = 0;    // +90°
+    function void init() {
+        let sinTable = Array.new(41);
+        let cosTable = Array.new(41);
+        do Tank.initTrigTables();
         return;
     }
 
-    method void moveLeft(Array groundHeights) { // TODO: add fuel
-        if ((x > 6) & (Math.abs(groundHeights[x - 4] - groundHeights[x]) < 10)) {
+    function void deinit() {
+        do sinTable.dispose();
+        do cosTable.dispose();
+        return;
+    }
+
+    function void initTrigTables() {
+        let sinTable[0] = -985; let cosTable[0] = -174; // -100°
+        let sinTable[1] = -996; let cosTable[1] = -87; // -95°
+        let sinTable[2] = -1000; let cosTable[2] = 0; // -90°
+        let sinTable[3] = -996; let cosTable[3] = 87; // -85°
+        let sinTable[4] = -985; let cosTable[4] = 174; // -80°
+        let sinTable[5] = -966; let cosTable[5] = 259; // -75°
+        let sinTable[6] = -940; let cosTable[6] = 342; // -70°
+        let sinTable[7] = -906; let cosTable[7] = 423; // -65°
+        let sinTable[8] = -866; let cosTable[8] = 500; // -60°
+        let sinTable[9] = -819; let cosTable[9] = 574; // -55°
+        let sinTable[10] = -766; let cosTable[10] = 643; // -50°
+        let sinTable[11] = -707; let cosTable[11] = 707; // -45°
+        let sinTable[12] = -643; let cosTable[12] = 766; // -40°
+        let sinTable[13] = -574; let cosTable[13] = 819; // -35°
+        let sinTable[14] = -500; let cosTable[14] = 866; // -30°
+        let sinTable[15] = -423; let cosTable[15] = 906; // -25°
+        let sinTable[16] = -342; let cosTable[16] = 940; // -20°
+        let sinTable[17] = -259; let cosTable[17] = 966; // -15°
+        let sinTable[18] = -174; let cosTable[18] = 985; // -10°
+        let sinTable[19] = -87; let cosTable[19] = 996; // -5°
+        let sinTable[20] = 0; let cosTable[20] = 1000; // 0°
+        let sinTable[21] = 87; let cosTable[21] = 996; // 5°
+        let sinTable[22] = 174; let cosTable[22] = 985; // 10°
+        let sinTable[23] = 259; let cosTable[23] = 966; // 15°
+        let sinTable[24] = 342; let cosTable[24] = 940; // 20°
+        let sinTable[25] = 423; let cosTable[25] = 906; // 25°
+        let sinTable[26] = 500; let cosTable[26] = 866; // 30°
+        let sinTable[27] = 574; let cosTable[27] = 819; // 35°
+        let sinTable[28] = 643; let cosTable[28] = 766; // 40°
+        let sinTable[29] = 707; let cosTable[29] = 707; // 45°
+        let sinTable[30] = 766; let cosTable[30] = 643; // 50°
+        let sinTable[31] = 819; let cosTable[31] = 574; // 55°
+        let sinTable[32] = 866; let cosTable[32] = 500; // 60°
+        let sinTable[33] = 906; let cosTable[33] = 423; // 65°
+        let sinTable[34] = 940; let cosTable[34] = 342; // 70°
+        let sinTable[35] = 966; let cosTable[35] = 259; // 75°
+        let sinTable[36] = 985; let cosTable[36] = 174; // 80°
+        let sinTable[37] = 996; let cosTable[37] = 87; // 85°
+        let sinTable[38] = 1000; let cosTable[38] = 0; // 90°
+        let sinTable[39] = 996; let cosTable[39] = -87; // 95°
+        let sinTable[40] = 985; let cosTable[40] = -174; // 100°
+        return;
+    }
+
+    constructor Tank new(int startX, int startY) {
+        let x = startX;
+        let y = startY;
+        let pipeAngle = 0;
+        let pipeLen = 15;
+        let health = 100;
+        let fuel = 100;
+        let destroyed = false;
+        return this;
+    }
+
+    method void setX(int newX) {
+        let x = newX;
+        return;
+    }
+
+    method int getX() {
+        return x;
+    }
+
+    method void setY(int newY) {
+        let y = newY;
+        return;
+    }
+
+    method int getY() {
+        return y;
+    }
+
+    method int getHealth() {
+        return health;
+    }
+
+    method void applyDamage(int damage, Array groundHeights) {
+        if (destroyed) {
+            return;
+        }
+        let health = Math.max(0, health - damage);
+
+        if (health < 1) {
+            do Screen.setColor(false);
+            do draw(groundHeights); // Clear the tank
+            do Screen.setColor(true);
+            // TODO: kaboom?
+            let destroyed = true;
+        }
+        return;
+    }
+
+    method void moveLeft(Array groundHeights) {
+        if ((x > 6) & (Math.abs(groundHeights[x - 4] - groundHeights[x]) < 10) & (fuel > 0)) {
+            let fuel = fuel - 1; // Decrease fuel on movement
             do Screen.setColor(false);
             do draw(groundHeights); // Clear previous position
             do Screen.setColor(true);
             let x = x - 2;
+            let y = groundHeights[x] - 9;
             do draw(groundHeights); // Draw new position
         }
         return;
     }
 
     method void moveRight(Array groundHeights) {
-        if ((x < 506) & (Math.abs(groundHeights[x + 4] - groundHeights[x]) < 10)) {
+        if ((x < 506) & (Math.abs(groundHeights[x + 4] - groundHeights[x]) < 10) & (fuel > 0)) {
+            let fuel = fuel - 1; // Decrease fuel on movement
             do Screen.setColor(false);
             do draw(groundHeights); // Clear previous position
             do Screen.setColor(true);
             let x = x + 2;
+            let y = groundHeights[x] - 9;
             do draw(groundHeights); // Draw new position
         }
         return;
     }
 
     method void rotateLeft(Array groundHeights) {
-        if (pipeAngle > -90) { // Limit left rotation
+        if (pipeAngle > -100) { // Limit left rotation
             do Screen.setColor(false);
             do draw(groundHeights); // Clear previous position
             do Screen.setColor(true);
@@ -90,7 +151,7 @@ class Tank {
     }
 
     method void rotateRight(Array groundHeights) {
-        if (pipeAngle < 90) { // Limit right rotation
+        if (pipeAngle < 100) { // Limit right rotation
             do Screen.setColor(false);
             do draw(groundHeights); // Clear previous position
             do Screen.setColor(true);
@@ -122,18 +183,21 @@ class Tank {
         return;
     }
 
-    method void fire(Array groundHeights) {
+    method Projectile fire(Array groundHeights) {
         var int pX, pY;
         var Projectile projectile;
-        let projectile = Projectile.new(x, groundHeights[x] - 5, pipeLen, pipeAngle, sinTable, cosTable);
+        let projectile = Projectile.new(x, groundHeights[x] - 5, pipeLen, pipeAngle, 12, sinTable, cosTable);
+
         while (projectile.isActive()) {
             do projectile.update();
             do draw(groundHeights);
             let pX = projectile.getX();
+            let pY = projectile.getY();
+
             // Hit the ground?
-            if (projectile.getY() > groundHeights[Math.max(0, Math.min(511, pX))]) {
+            if (pY > groundHeights[Math.max(0, Math.min(511, pX))]) {
                 if ((pX > -1) & (pX < 512)) {
-                    do destroyGround(groundHeights, pX, 12);
+                    do destroyGround(groundHeights, pX, pY, projectile.getRadius());
                 }
                 do projectile.deactivate();
             } else {
@@ -141,48 +205,81 @@ class Tank {
             }
         }
 
-        do projectile.free(); // Free the projectile memory
+        return projectile;
+    }
+
+    method void destroyGround(Array groundHeights, int centerX, int centerY, int radius) {
+        var int i, dx, minX, maxX, newY;
+        if ((centerX > radius) & (centerX < (511 - radius)) & (centerY > radius) & (centerY < (255 - radius))) {
+            let i = 0;
+            while (i < 3) {
+                do Screen.setColor(true);
+                do Screen.drawCircle(centerX, centerY, radius);
+                do Sys.wait(60);
+                do Screen.setColor(false);
+                do Screen.drawCircle(centerX, centerY, radius);
+                do Sys.wait(60);
+                let i = i + 1;
+            }
+        }
+        let minX = Math.max(centerX - radius, 0);
+        let maxX = Math.min(centerX + radius, 511);
+        let i = minX;
+        do Screen.setColor(false);
+        while (i < maxX) {
+            let dx = i - centerX;
+            let newY = centerY + radius - Math.abs(dx);
+            if ((groundHeights[i] < (centerY - radius + Math.abs(dx)))) {
+                let newY = groundHeights[i] + ((2 * radius) - (2 * Math.abs(dx)));
+            }
+            else {
+                let newY = Math.max(groundHeights[i], newY);
+            }
+            let newY = Math.min(newY, 255);
+            do Screen.drawLine(i, groundHeights[i], i, newY);
+            let groundHeights[i] = newY;
+            let i = i + 1;
+        }
+        do Screen.setColor(true);
         return;
     }
 
-    method void destroyGround(Array groundHeights, int centerX, int radius) {
-        var int x, dx, minX, maxX;
-        let minX = Math.max(centerX - radius, 0);
-        let maxX = Math.min(centerX + radius, 511);
-        let x = minX;
-        while (x < maxX) {
-            let dx = x - centerX;
-            // Circle equation: dx^2 + dy^2 < r^2
-            // Lower the ground in a circular area
-            if ((dx * dx) < (radius * radius)) {
-                do Screen.setColor(false);
-                do Screen.drawLine(x, groundHeights[x], x, 255);
-                let groundHeights[x] = Math.min(groundHeights[x] + (radius - Math.abs(dx)), 255);
-                do Screen.setColor(true);
-                do Screen.drawLine(x, groundHeights[x], x, 255); // Redraw the ground
-            }
-            let x = x + 1;
-        }
-        return; // TODO: add gravity to tank in case projectiles hit the ground below it
-    }
-
     method void draw(Array groundHeights) {
-        var int y, pipeX, pipeY, idx, sin, cos;
+        var int i, pipeX, pipeY, idx, sin, cos;
+
+        if (destroyed) {
+            return;
+        }
 
         // Draw the tank body
-        let y = groundHeights[x] - 9; // 8 pixels tall // TODO: maybe real body graphic instead of rectangle
+        // 9 pixels tall; 12 pixel width// TODO: maybe real body graphic instead of rectangle
         do Screen.drawRectangle(x - 6, y, x + 5, y + 8);
 
+
         // Draw the tank pipe
-        // Convert pipeAngle (-60 to +60 by 5) to index (0 to 24)
-        let idx = (pipeAngle + 90) / 5;
+        let idx = (pipeAngle + 100) / 5;
         let sin = sinTable[idx];
         let cos = cosTable[idx];
 
         let pipeX = Math.max(0, Math.min(511, x + ((pipeLen * sin) / 1000)));
         let pipeY = Math.max(0, Math.min(255, y + 4 - ((pipeLen * cos) / 1000)));
 
-        do Screen.drawLine(x, y + 4, pipeX, pipeY);
+        if (pipeY < groundHeights[pipeX]) {
+
+            do Screen.drawLine(x, y + 4, pipeX, pipeY);
+        }
+
+
+        // let i = Math.max(0, x - 8);
+        // while (i < Math.min(511, x + 7)) {
+        //     let y = groundHeights[i];
+        //     do Screen.setColor(false);
+        //     do Screen.drawLine(i, y, i, 255); // Clear the ground below the pipe
+        //     do Screen.setColor(true);
+        //     do Screen.drawLine(i, y, i, 255); // Redraw the ground
+        //     let i = i + 1;
+        // }
+
         return;
     }
 

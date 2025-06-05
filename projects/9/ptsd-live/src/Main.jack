@@ -1,25 +1,24 @@
 
 class Main {
 	function void main() {
-        var boolean break;
-        var int key;
+        var boolean running, gameWon;
 		var PTSDLive game;
+        var int level;
 
-		// do Startscreen.display();
-        // do Screen.clearScreen();
+        let running = Startscreen.display();
 
-		let game = PTSDLive.new();
-        do game.run();
+        let level = 1;
+        while (running) {
+            let game = PTSDLive.new(level);
+            let gameWon = game.run();
+            let level = level + 1;
+            if (~gameWon) {
+                let level = 1;
+            }
+            let running = Endscreen.display(gameWon, level);
+            do game.free();
+        }
 
-        do game.free();
-        do Sys.wait(10000);
-		//do game.free();
-		// while (~break) {
-		// 	let key = Keyboard.keyPressed();
-		// 	if ((key = 32) | (key = 131) | (key = 133)) {
-		// 		let break = true;
-		// 	}
-		// }
 		return;
 	}
 }

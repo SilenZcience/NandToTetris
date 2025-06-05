@@ -1,47 +1,160 @@
 class PTSDLive {
     field Array groundHeights;
     field Tank playerTank;
+    field Array allTanks;
 
-    constructor PTSDLive new() {
+    field int level;
+    field int tankAmount;
+
+    constructor PTSDLive new(int level_) {
+        var int i;
+        var Tank cTank;
+
+        let level = level_;
+        let tankAmount = Levels.tankAmount(level);
+
         let groundHeights = Array.new(512);
-        let playerTank = Tank.new(30);
-        do initGround();
+        let allTanks = Array.new(tankAmount);
+        do Levels.initLevel(level, groundHeights, allTanks);
         do drawGround();
-        do playerTank.draw(groundHeights);
+
+        do Tank.init();
+        let playerTank = allTanks[0];
+        while (i < tankAmount) {
+            let cTank = allTanks[i]; // Get each tank
+            do cTank.draw(groundHeights); // Draw all tanks
+            let i = i + 1;
+        }
+
+        do drawHealth();
         return this;
     }
 
-    method void initGround() {
-        var int x;
-        let x = 0;
-        while (x < 512) {
-            let groundHeights[x] = 150; // Flat ground at y=150
-            let x = x + 1;
-        }
-        return;
-    }
-
     method void drawGround() {
-        var int x;
-        var int y;
-        let x = 0;
+        var int i, j;
+        let i = 0;
         // do Screen.setColor(true);
-        while (x < 512) {
-            let y = groundHeights[x];
-            do Screen.drawLine(x, y, x, 255); // Draw vertical line
-            let x = x + 1;
+        while (i < 512) {
+            let j = groundHeights[i];
+            do Screen.drawLine(i, j, i, 255); // Draw vertical line
+            let i = i + 1;
         }
         return;
     }
 
-    method void run() {
+    method void drawHealth() {
+        var int i, x, y, health;
+        var Tank cTank;
+
+        do Screen.setColor(false);
+        do Screen.drawRectangle(0, 0, 145, 12 * 3);
+        do Screen.setColor(true);
+
+        let i = 0;
+        while (i < tankAmount) {
+            let cTank = allTanks[i];
+            let x = cTank.getX();
+            let y = cTank.getY();
+            let health = cTank.getHealth();
+
+            do Output.moveCursor(i, 0);
+            if (i = 0) {
+                do Output.printString("Player Health: ");
+            } else {
+                do Output.printString("Enemy");
+                do Output.printInt(i);
+                do Output.printString(" Health: ");
+            }
+            do Output.printInt(cTank.getHealth());
+
+            let i = i + 1;
+        }
+        return;
+    }
+
+    method void applyDamage(Projectile projectile) {
+        var int i, pX, pY, radius, dx, dy, tankX, tankY;
+        var Tank cTank;
+        let pX = projectile.getX();
+        let pY = projectile.getY();
+        let radius = projectile.getRadius();
+
+        let i = 0;
+        while (i < tankAmount) {
+            let cTank = allTanks[i];
+            let tankX = cTank.getX();
+            let tankY = cTank.getY();
+
+            let dx = Math.abs(tankX - pX) - 6;
+            let dy = Math.abs(tankY - pY) - 4;
+
+            // Debug output
+            // do Output.moveCursor(i, 0);
+            // do Output.printString("Tank ");
+            // do Output.printInt(i);
+            // do Output.printString(": tankX=");
+            // do Output.printInt(tankX);
+            // do Output.printString(", tankY=");
+            // do Output.printInt(tankY);
+            // do Output.printString(", pX=");
+            // do Output.printInt(pX);
+            // do Output.printString(", pY=");
+            // do Output.printInt(pY);
+            // do Output.printString(", dx=");
+            // do Output.printInt(dx);
+            // do Output.printString(", dy=");
+            // do Output.printInt(dy);
+
+            if ((dx < radius) & (dy < radius)) {
+                // Square distance check yields too large values ...
+                do cTank.applyDamage(520 - (2 * radius), groundHeights); // TODO: fix damage
+                // do Output.printString("Tank hit");
+            }
+
+            let i = i + 1;
+        }
+        return;
+    }
+
+    method void applyGravity() {
+        var int i;
+        var Tank cTank;
+        let i = 0;
+        while (i < tankAmount) {
+            let cTank = allTanks[i];
+            do Screen.setColor(false);
+            do cTank.draw(groundHeights);
+            do Screen.setColor(true);
+            do cTank.setY(groundHeights[cTank.getX()] - 9); // Reset y position to ground level
+            do cTank.draw(groundHeights);
+            let i = i + 1;
+        }
+        return;
+    }
+
+    method boolean allEnemiesDestroyed() {
+        var int i;
+        var Tank cTank;
+        let i = 1;
+        while (i < tankAmount) {
+            let cTank = allTanks[i];
+            if (cTank.getHealth() > 0) {
+                return false;
+            }
+            let i = i + 1;
+        }
+        return true;
+    }
+
+    method boolean run() {
         var char key;
-        // TODO: turn based system and enemies ...
-        while (true) { // TODO: probably redo render system to do a full render after every action.
+        var Projectile projectile;
+        // TODO: draw fuel
+        while (true) {
             let key = Keyboard.keyPressed();
             if ((key = 97) | (key = 65)) { // 'a' / 'A'
                 do playerTank.moveLeft(groundHeights);
-                do drawGround(); // TODO: only move if ground is somewhat flat
+                do drawGround();
             }
             if ((key = 100) | (key = 68)) { // 'd' / 'D'
                 do playerTank.moveRight(groundHeights);
@@ -60,8 +173,25 @@ class PTSDLive {
                 do playerTank.decreasePower(groundHeights);
             }
             if ((key = 32)) { // space bar
-                do playerTank.fire(groundHeights);
+                let projectile = playerTank.fire(groundHeights);
+                do applyDamage(projectile);
+                do projectile.free();
                 do drawGround();
+                do applyGravity();
+                do drawHealth();
+
+                // TODO: turn based system and enemies ...
+
+                if (playerTank.getHealth() = 0) {
+                    return false;
+                }
+                if (allEnemiesDestroyed()) {
+                    return true;
+                }
+
+            }
+            if ((key = 113) | (key = 81)) { // 'q' / 'Q'
+                return false;
             }
 
             do Sys.wait(10); // Small delay for animation
@@ -70,11 +200,21 @@ class PTSDLive {
 
             // do Output.printChar(key);
         }
-        return;
+        return true;
     }
 
 	method void free() {
-        do playerTank.free();
+        var int i;
+        var Tank cTank;
+        let i = 0;
+        while (i < tankAmount) {
+            let cTank = allTanks[i];
+            do cTank.free();
+            let i = i + 1;
+        }
+        do Tank.deinit();
+        do groundHeights.dispose();
+        do allTanks.dispose();
 		do Memory.deAlloc(this);
 		return;
 	}

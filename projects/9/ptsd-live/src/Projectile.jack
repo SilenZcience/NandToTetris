@@ -1,37 +1,57 @@
 class Projectile {
-    field int x;
-    field int y;
-    field int vx;
-    field int vy;
+    field int x, y;
+    field int radius;
+    field int vx, vy;
     field int vycycle;
     field boolean active;
 
-
-    constructor Projectile new(int startX, int startY, int velocity, int angle, Array sinTable, Array cosTable) {
+    constructor Projectile new(int startX, int startY, int velocity, int angle, int radius_, Array sinTable, Array cosTable) {
         var int idx;
         let x = startX;
         let y = startY;
+        let radius = radius_;
         let active = true;
+        let vycycle = 0;
         // angle: -90 to +90, in steps of 5
-        let idx = (angle + 90) / 5;
+        let idx = (angle + 100) / 5;
         // velocity is pipeLen, sin/cos are scaled by 1000
         let vx = (velocity * sinTable[idx]) / 2000; // scale down for game speed
         let vy = -((velocity * cosTable[idx]) / 2000); // negative because y increases downward
+
         return this;
     }
 
+    method int getRadius() {
+        return radius;
+    }
+
     method void update() {
-        do Screen.setColor(false);
-        do draw(); // Clear previous position
-        do Screen.setColor(true);
         let vycycle = vycycle + 1;
-        if (vycycle > 3) { // Update every 5th frame
+        if (vycycle > 3) {
             let vycycle = 0;
-            let vy = vy + 1; // gravity effect
+            let vy = vy + 1;
         }
-        let x = x + vx;
-        let y = y + vy;
-        do draw(); // Draw new position
+
+        do drawPath(x, y, x + vx, y + vy); // Draw smooth path
+        return;
+    }
+
+    method void drawPath(int x0, int y0, int x1, int y1) {
+        var int dx, dy, steps, i, px, py;
+        let dx = x1 - x0;
+        let dy = y1 - y0;
+        let steps = Math.max(Math.abs(dx), Math.abs(dy));
+        let i = 1;
+        while (i < (steps + 1)) {
+            do Screen.setColor(false);
+            do draw(); // Clear previous position
+            do Screen.setColor(true);
+            let x = x0 + ((dx * i) / steps);
+            let y = y0 + ((dy * i) / steps);
+            do draw();
+            do Sys.wait(1);
+            let i = i + 1;
+        }
         return;
     }
 

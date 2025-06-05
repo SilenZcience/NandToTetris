@@ -1,51 +1,60 @@
-function PTSDLive.new 0
-push constant 2
+function PTSDLive.new 2
+push constant 5
 call Memory.alloc 1
 pop pointer 0
+push argument 0
+pop this 3
+push this 3
+call Levels.tankAmount 1
+pop this 4
 push constant 512
 call Array.new 1
 pop this 0
-push constant 30
-call Tank.new 1
-pop this 1
-push pointer 0
-call PTSDLive.initGround 1
+push this 4
+call Array.new 1
+pop this 2
+push this 3
+push this 0
+push this 2
+call Levels.initLevel 3
 pop temp 0
 push pointer 0
 call PTSDLive.drawGround 1
 pop temp 0
-push this 1
-push this 0
-call Tank.draw 2
+call Tank.init 0
 pop temp 0
-push pointer 0
-return
-function PTSDLive.initGround 1
-push argument 0
-pop pointer 0
 push constant 0
-pop local 0
+push this 2
+add
+pop pointer 1
+push that 0
+pop this 1
 label WHILE_EXP0
 push local 0
-push constant 512
+push this 4
 lt
 not
 if-goto WHILE_END0
 push local 0
-push this 0
+push this 2
 add
-push constant 150
-pop temp 0
 pop pointer 1
-push temp 0
-pop that 0
+push that 0
+pop local 1
+push local 1
+push this 0
+call Tank.draw 2
+pop temp 0
 push local 0
 push constant 1
 add
 pop local 0
 goto WHILE_EXP0
 label WHILE_END0
-push constant 0
+push pointer 0
+call PTSDLive.drawHealth 1
+pop temp 0
+push pointer 0
 return
 function PTSDLive.drawGround 2
 push argument 0
@@ -78,7 +87,307 @@ goto WHILE_EXP0
 label WHILE_END0
 push constant 0
 return
-function PTSDLive.run 1
+function PTSDLive.drawHealth 5
+push argument 0
+pop pointer 0
+push constant 0
+call Screen.setColor 1
+pop temp 0
+push constant 0
+push constant 0
+push constant 145
+push constant 12
+push constant 3
+call Math.multiply 2
+call Screen.drawRectangle 4
+pop temp 0
+push constant 0
+not
+call Screen.setColor 1
+pop temp 0
+push constant 0
+pop local 0
+label WHILE_EXP0
+push local 0
+push this 4
+lt
+not
+if-goto WHILE_END0
+push local 0
+push this 2
+add
+pop pointer 1
+push that 0
+pop local 4
+push local 4
+call Tank.getX 1
+pop local 1
+push local 4
+call Tank.getY 1
+pop local 2
+push local 4
+call Tank.getHealth 1
+pop local 3
+push local 0
+push constant 0
+call Output.moveCursor 2
+pop temp 0
+push local 0
+push constant 0
+eq
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push constant 15
+call String.new 1
+push constant 80
+call String.appendChar 2
+push constant 108
+call String.appendChar 2
+push constant 97
+call String.appendChar 2
+push constant 121
+call String.appendChar 2
+push constant 101
+call String.appendChar 2
+push constant 114
+call String.appendChar 2
+push constant 32
+call String.appendChar 2
+push constant 72
+call String.appendChar 2
+push constant 101
+call String.appendChar 2
+push constant 97
+call String.appendChar 2
+push constant 108
+call String.appendChar 2
+push constant 116
+call String.appendChar 2
+push constant 104
+call String.appendChar 2
+push constant 58
+call String.appendChar 2
+push constant 32
+call String.appendChar 2
+call Output.printString 1
+pop temp 0
+goto IF_END0
+label IF_FALSE0
+push constant 5
+call String.new 1
+push constant 69
+call String.appendChar 2
+push constant 110
+call String.appendChar 2
+push constant 101
+call String.appendChar 2
+push constant 109
+call String.appendChar 2
+push constant 121
+call String.appendChar 2
+call Output.printString 1
+pop temp 0
+push local 0
+call Output.printInt 1
+pop temp 0
+push constant 9
+call String.new 1
+push constant 32
+call String.appendChar 2
+push constant 72
+call String.appendChar 2
+push constant 101
+call String.appendChar 2
+push constant 97
+call String.appendChar 2
+push constant 108
+call String.appendChar 2
+push constant 116
+call String.appendChar 2
+push constant 104
+call String.appendChar 2
+push constant 58
+call String.appendChar 2
+push constant 32
+call String.appendChar 2
+call Output.printString 1
+pop temp 0
+label IF_END0
+push local 4
+call Tank.getHealth 1
+call Output.printInt 1
+pop temp 0
+push local 0
+push constant 1
+add
+pop local 0
+goto WHILE_EXP0
+label WHILE_END0
+push constant 0
+return
+function PTSDLive.applyDamage 9
+push argument 0
+pop pointer 0
+push argument 1
+call Projectile.getX 1
+pop local 1
+push argument 1
+call Projectile.getY 1
+pop local 2
+push argument 1
+call Projectile.getRadius 1
+pop local 3
+push constant 0
+pop local 0
+label WHILE_EXP0
+push local 0
+push this 4
+lt
+not
+if-goto WHILE_END0
+push local 0
+push this 2
+add
+pop pointer 1
+push that 0
+pop local 8
+push local 8
+call Tank.getX 1
+pop local 6
+push local 8
+call Tank.getY 1
+pop local 7
+push local 6
+push local 1
+sub
+call Math.abs 1
+push constant 6
+sub
+pop local 4
+push local 7
+push local 2
+sub
+call Math.abs 1
+push constant 4
+sub
+pop local 5
+push local 4
+push local 3
+lt
+push local 5
+push local 3
+lt
+and
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push local 8
+push constant 520
+push constant 2
+push local 3
+call Math.multiply 2
+sub
+push this 0
+call Tank.applyDamage 3
+pop temp 0
+label IF_FALSE0
+push local 0
+push constant 1
+add
+pop local 0
+goto WHILE_EXP0
+label WHILE_END0
+push constant 0
+return
+function PTSDLive.applyGravity 2
+push argument 0
+pop pointer 0
+push constant 0
+pop local 0
+label WHILE_EXP0
+push local 0
+push this 4
+lt
+not
+if-goto WHILE_END0
+push local 0
+push this 2
+add
+pop pointer 1
+push that 0
+pop local 1
+push constant 0
+call Screen.setColor 1
+pop temp 0
+push local 1
+push this 0
+call Tank.draw 2
+pop temp 0
+push constant 0
+not
+call Screen.setColor 1
+pop temp 0
+push local 1
+push local 1
+call Tank.getX 1
+push this 0
+add
+pop pointer 1
+push that 0
+push constant 9
+sub
+call Tank.setY 2
+pop temp 0
+push local 1
+push this 0
+call Tank.draw 2
+pop temp 0
+push local 0
+push constant 1
+add
+pop local 0
+goto WHILE_EXP0
+label WHILE_END0
+push constant 0
+return
+function PTSDLive.allEnemiesDestroyed 2
+push argument 0
+pop pointer 0
+push constant 1
+pop local 0
+label WHILE_EXP0
+push local 0
+push this 4
+lt
+not
+if-goto WHILE_END0
+push local 0
+push this 2
+add
+pop pointer 1
+push that 0
+pop local 1
+push local 1
+call Tank.getHealth 1
+push constant 0
+gt
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push constant 0
+return
+label IF_FALSE0
+push local 0
+push constant 1
+add
+pop local 0
+goto WHILE_EXP0
+label WHILE_END0
+push constant 0
+not
+return
+function PTSDLive.run 2
 push argument 0
 pop pointer 0
 label WHILE_EXP0
@@ -177,23 +486,97 @@ label IF_TRUE6
 push this 1
 push this 0
 call Tank.fire 2
+pop local 1
+push pointer 0
+push local 1
+call PTSDLive.applyDamage 2
+pop temp 0
+push local 1
+call Projectile.free 1
 pop temp 0
 push pointer 0
 call PTSDLive.drawGround 1
 pop temp 0
+push pointer 0
+call PTSDLive.applyGravity 1
+pop temp 0
+push pointer 0
+call PTSDLive.drawHealth 1
+pop temp 0
+push this 1
+call Tank.getHealth 1
+push constant 0
+eq
+if-goto IF_TRUE7
+goto IF_FALSE7
+label IF_TRUE7
+push constant 0
+return
+label IF_FALSE7
+push pointer 0
+call PTSDLive.allEnemiesDestroyed 1
+if-goto IF_TRUE8
+goto IF_FALSE8
+label IF_TRUE8
+push constant 0
+not
+return
+label IF_FALSE8
 label IF_FALSE6
+push local 0
+push constant 113
+eq
+push local 0
+push constant 81
+eq
+or
+if-goto IF_TRUE9
+goto IF_FALSE9
+label IF_TRUE9
+push constant 0
+return
+label IF_FALSE9
 push constant 10
 call Sys.wait 1
 pop temp 0
 goto WHILE_EXP0
 label WHILE_END0
 push constant 0
+not
 return
-function PTSDLive.free 0
+function PTSDLive.free 2
 push argument 0
 pop pointer 0
-push this 1
+push constant 0
+pop local 0
+label WHILE_EXP0
+push local 0
+push this 4
+lt
+not
+if-goto WHILE_END0
+push local 0
+push this 2
+add
+pop pointer 1
+push that 0
+pop local 1
+push local 1
 call Tank.free 1
+pop temp 0
+push local 0
+push constant 1
+add
+pop local 0
+goto WHILE_EXP0
+label WHILE_END0
+call Tank.deinit 0
+pop temp 0
+push this 0
+call Array.dispose 1
+pop temp 0
+push this 2
+call Array.dispose 1
 pop temp 0
 push pointer 0
 call Memory.deAlloc 1

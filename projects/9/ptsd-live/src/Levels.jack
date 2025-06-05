@@ -1,0 +1,49 @@
+class Levels {
+    function void initLevel(int level, Array groundHeights, Array allTanks) {
+        var int i;
+
+
+
+        if (level = 1) {
+            let i = 0;
+            while (i < 512) {
+                let groundHeights[i] = 150; // Flat ground at y=150
+                let i = i + 1;
+            }
+
+            let allTanks[0] = Tank.new(30, groundHeights[30] - 9);
+            let allTanks[1] = Tank.new(400, groundHeights[400] - 9);
+        }
+        if (level = 2) {
+            let i = 0;
+            while (i < 512) {
+                let groundHeights[i] = 150; // Flat ground at y=150
+                if ((i > 200) & (i < 300)) {
+                    let groundHeights[i] = 75;
+                }
+                let i = i + 1;
+            }
+
+            let allTanks[0] = Tank.new(30, groundHeights[30] - 9);
+            let allTanks[1] = Tank.new(400, groundHeights[400] - 9);
+            let allTanks[2] = Tank.new(250, groundHeights[250] - 9);
+        }
+
+        return;
+    }
+
+
+    function int tankAmount(int level) {
+        if (level = 1) {
+            return 2;
+        }
+        if (level = 2) {
+            return 3;
+        }
+        if (level = 3) {
+            return 5;
+        }
+        return 0;
+    }
+
+}

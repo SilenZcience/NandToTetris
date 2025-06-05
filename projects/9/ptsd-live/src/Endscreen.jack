@@ -1,21 +1,77 @@
 class Endscreen {
-    function void display() {
-		var boolean break;
+    function boolean display(boolean gameWon, int level) {
+		var boolean wait;
 		var int key;
 		var String str;
 
-		let str = "Restart?:";
-		do Output.moveCursor(6, 10);
+        do Screen.clearScreen();
+
+		let str = "PTSD Live  aka Der Schulweg meines Grossvaters:";
+		do Output.moveCursor(3, 8);
+		do Output.printString(str);
+		do str.dispose();
+
+        if (gameWon) {
+            let str = "You won the battle but the war is not over!";
+        } else {
+            let str = "You got destroyed!";
+        }
+		do Output.moveCursor(5, 8);
+		do Output.printString(str);
+        do str.dispose();
+
+        if (gameWon) {
+            let str = "Continue fighting?";
+        } else {
+            let str = "Try again?";
+        }
+		do Output.moveCursor(6, 8);
+		do Output.printString(str);
+        do Output.printString(" (Level ");
+        do Output.printInt(level);
+        do Output.printString(")");
+        do str.dispose();
+
+		let str = "w/d-key           to move horizontally";
+		do Output.moveCursor(11, 8);
+		do Output.printString(str);
+		do str.dispose();
+
+        let str = "left/right-arrow  to adjust shooting angle";
+		do Output.moveCursor(12, 8);
+		do Output.printString(str);
+		do str.dispose();
+
+		let str = "up/down-arrow     to adjust shooting strength";
+		do Output.moveCursor(13, 8);
+		do Output.printString(str);
+		do str.dispose();
+
+		let str = "q-key             to quit";
+		do Output.moveCursor(14, 8);
 		do Output.printString(str);
 		do str.dispose();
 
 
-		while (~break) {
+		let str = "Press space to begin!";
+		do Output.moveCursor(15, 8);
+		do Output.printString(str);
+		do str.dispose();
+
+        let wait = true;
+		while (wait) {
 			let key = Keyboard.keyPressed();
-			if ((key = 32) | (key = 131) | (key = 133)) {
-				let break = true;
+			if ((key = 32)) {
+				let wait = false;
 			}
+            if ((key = 113) | (key = 81)) { // 'q' / 'Q'
+                do Screen.clearScreen();
+                return false;
+            }
 		}
-        return;
+
+        do Screen.clearScreen();
+        do Sys.wait(150);
+        return true;
     }
 }
