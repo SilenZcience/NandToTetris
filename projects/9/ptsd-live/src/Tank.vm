@@ -701,6 +701,12 @@ push temp 0
 pop that 0
 push constant 0
 return
+function Tank.getSinTable 0
+push static 0
+return
+function Tank.getCosTable 0
+push static 1
+return
 function Tank.new 0
 push constant 8
 call Memory.alloc 1
@@ -751,6 +757,11 @@ function Tank.getHealth 0
 push argument 0
 pop pointer 0
 push this 4
+return
+function Tank.getFuel 0
+push argument 0
+pop pointer 0
+push this 5
 return
 function Tank.refuel 0
 push argument 0

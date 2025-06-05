@@ -27,6 +27,7 @@ class PTSDLive {
         }
 
         do drawHealth();
+        do drawFuel();
         return this;
     }
 
@@ -47,7 +48,7 @@ class PTSDLive {
         var Tank cTank;
 
         do Screen.setColor(false);
-        do Screen.drawRectangle(0, 0, 145, 12 * 3);
+        do Screen.drawRectangle(0, 0, 145, 12 * tankAmount);
         do Screen.setColor(true);
 
         let i = 0;
@@ -59,16 +60,54 @@ class PTSDLive {
 
             do Output.moveCursor(i, 0);
             if (i = 0) {
-                do Output.printString("Player Health: ");
+                do Output.printString("Player HP: ");
             } else {
                 do Output.printString("Enemy");
                 do Output.printInt(i);
-                do Output.printString(" Health: ");
+                do Output.printString(" HP: ");
             }
             do Output.printInt(cTank.getHealth());
 
             let i = i + 1;
         }
+        return;
+    }
+
+    method void drawFuel() {
+        var int centerX, centerY, radius;
+        var int sin, cos, idx, pipeX, pipeY;
+        var Array sinTable, cosTable;
+
+        do Screen.setColor(false);
+        do Screen.drawRectangle(425, 0, 480, 60);
+        do Screen.setColor(true);
+
+        let sinTable = Tank.getSinTable(); // Get the precomputed trig table
+        let cosTable = Tank.getCosTable(); // Get the precomputed trig table
+        let radius = 25;
+        let centerX = 454; // Center X of the meter
+        let centerY = 28;  // Center Y of the meter
+
+        do Screen.drawCircle(centerX, centerY, radius);
+        do Screen.setColor(false);
+        do Screen.drawCircle(centerX, centerY, radius-1);
+        do Screen.setColor(true);
+        do Screen.drawLine(centerX-radius, centerY, centerX+radius, centerY);
+        do Screen.setColor(false);
+        do Screen.drawRectangle(425, centerY+1, 480, 60);
+        do Screen.setColor(true);
+
+        do Output.moveCursor(1, 55);
+        do Output.printString("FUEL");
+
+        let idx = 2 + ((playerTank.getFuel() * 36) / 100);
+        let sin = sinTable[idx];
+        let cos = cosTable[idx];
+
+        let pipeX = Math.max(0, Math.min(511, centerX + ((25 * sin) / 1000)));
+        let pipeY = Math.max(0, Math.min(255, centerY - ((25 * cos) / 1000)));
+
+        do Screen.drawLine(centerX, centerY, pipeX, pipeY);
         return;
     }
 
@@ -169,11 +208,13 @@ class PTSDLive {
                 do playerTank.moveLeft(groundHeights);
                 do drawGround();
                 do renderAllTanks();
+                do drawFuel();
             }
             if ((key = 100) | (key = 68)) { // 'd' / 'D'
                 do playerTank.moveRight(groundHeights);
                 do drawGround();
                 do renderAllTanks();
+                do drawFuel();
             }
             if ((key = 130)) { // left arrow
                 do playerTank.rotateLeft(groundHeights);
@@ -195,6 +236,7 @@ class PTSDLive {
                 do drawGround();
                 do applyGravity();
                 do drawHealth();
+                do drawFuel();
 
                 // TODO: turn based system and enemies ...
 

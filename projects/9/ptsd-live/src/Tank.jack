@@ -65,6 +65,13 @@ class Tank {
         return;
     }
 
+    function Array getSinTable() {
+        return sinTable;
+    }
+    function Array getCosTable() {
+        return cosTable;
+    }
+
     constructor Tank new(int startX, int startY, boolean playerTank_) {
         let x = startX;
         let y = startY;
@@ -97,6 +104,10 @@ class Tank {
 
     method int getHealth() {
         return health;
+    }
+
+    method int getFuel() {
+        return fuel;
     }
 
     method void refuel() {
