@@ -3,6 +3,7 @@ class Tank {
     field int pipeAngle, pipeLen; // degrees, 0 = up
     field int health, fuel;
     field boolean destroyed;
+    field boolean playerTank;
 
     static Array sinTable, cosTable;
 
@@ -64,9 +65,10 @@ class Tank {
         return;
     }
 
-    constructor Tank new(int startX, int startY) {
+    constructor Tank new(int startX, int startY, boolean playerTank_) {
         let x = startX;
         let y = startY;
+        let playerTank = playerTank_;
         let pipeAngle = 0;
         let pipeLen = 15;
         let health = 100;
@@ -97,6 +99,11 @@ class Tank {
         return health;
     }
 
+    method void refuel() {
+        let fuel = 100;
+        return;
+    }
+
     method void applyDamage(int damage, Array groundHeights) {
         if (destroyed) {
             return;
@@ -120,7 +127,7 @@ class Tank {
             do draw(groundHeights); // Clear previous position
             do Screen.setColor(true);
             let x = x - 2;
-            let y = groundHeights[x] - 9;
+            let y = groundHeights[x] - 5;
             do draw(groundHeights); // Draw new position
         }
         return;
@@ -133,7 +140,7 @@ class Tank {
             do draw(groundHeights); // Clear previous position
             do Screen.setColor(true);
             let x = x + 2;
-            let y = groundHeights[x] - 9;
+            let y = groundHeights[x] - 5;
             do draw(groundHeights); // Draw new position
         }
         return;
@@ -184,13 +191,19 @@ class Tank {
     }
 
     method Projectile fire(Array groundHeights) {
-        var int pX, pY;
+        var int pX, pY, idx, sin, cos, pipeX, pipeY;
         var Projectile projectile;
-        let projectile = Projectile.new(x, groundHeights[x] - 5, pipeLen, pipeAngle, 12, sinTable, cosTable);
+        let idx = (pipeAngle + 100) / 5;
+        let sin = sinTable[idx];
+        let cos = cosTable[idx];
+
+        let pipeX = Math.max(0, Math.min(511, x + ((pipeLen * sin) / 1000)));
+        let pipeY = Math.max(0, Math.min(255, y - ((pipeLen * cos) / 1000)));
+        let projectile = Projectile.new(pipeX, pipeY, pipeLen, pipeAngle, 12, sinTable, cosTable);
 
         while (projectile.isActive()) {
             do projectile.update();
-            do draw(groundHeights);
+            // do draw(groundHeights);
             let pX = projectile.getX();
             let pY = projectile.getY();
 
@@ -252,8 +265,7 @@ class Tank {
         }
 
         // Draw the tank body
-        // 9 pixels tall; 12 pixel width// TODO: maybe real body graphic instead of rectangle
-        do Screen.drawRectangle(x - 6, y, x + 5, y + 8);
+        do Screen.drawRectangle(x - 6, y - 4, x + 6, y + 4);
 
 
         // Draw the tank pipe
@@ -262,23 +274,18 @@ class Tank {
         let cos = cosTable[idx];
 
         let pipeX = Math.max(0, Math.min(511, x + ((pipeLen * sin) / 1000)));
-        let pipeY = Math.max(0, Math.min(255, y + 4 - ((pipeLen * cos) / 1000)));
+        let pipeY = Math.max(0, Math.min(255, y - ((pipeLen * cos) / 1000)));
 
         if (pipeY < groundHeights[pipeX]) {
-
-            do Screen.drawLine(x, y + 4, pipeX, pipeY);
+            do Screen.drawLine(x, y, pipeX, pipeY);
         }
 
-
-        // let i = Math.max(0, x - 8);
-        // while (i < Math.min(511, x + 7)) {
-        //     let y = groundHeights[i];
-        //     do Screen.setColor(false);
-        //     do Screen.drawLine(i, y, i, 255); // Clear the ground below the pipe
-        //     do Screen.setColor(true);
-        //     do Screen.drawLine(i, y, i, 255); // Redraw the ground
-        //     let i = i + 1;
-        // }
+        if (playerTank) {
+            do Screen.setColor(false);
+            do Screen.drawLine(x - 4, y, x + 4, y);
+            do Screen.drawLine(x, y - 2, x, y + 2);
+            do Screen.setColor(true);
+        }
 
         return;
     }

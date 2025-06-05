@@ -702,13 +702,15 @@ pop that 0
 push constant 0
 return
 function Tank.new 0
-push constant 7
+push constant 8
 call Memory.alloc 1
 pop pointer 0
 push argument 0
 pop this 0
 push argument 1
 pop this 1
+push argument 2
+pop this 7
 push constant 0
 pop this 2
 push constant 15
@@ -749,6 +751,13 @@ function Tank.getHealth 0
 push argument 0
 pop pointer 0
 push this 4
+return
+function Tank.refuel 0
+push argument 0
+pop pointer 0
+push constant 100
+pop this 5
+push constant 0
 return
 function Tank.applyDamage 0
 push argument 0
@@ -843,7 +852,7 @@ push argument 1
 add
 pop pointer 1
 push that 0
-push constant 9
+push constant 5
 sub
 pop this 1
 push pointer 0
@@ -907,7 +916,7 @@ push argument 1
 add
 pop pointer 1
 push that 0
-push constant 9
+push constant 5
 sub
 pop this 1
 push pointer 0
@@ -1042,40 +1051,72 @@ pop temp 0
 label IF_FALSE0
 push constant 0
 return
-function Tank.fire 3
+function Tank.fire 8
 push argument 0
 pop pointer 0
-push this 0
-push this 0
-push argument 1
+push this 2
+push constant 100
+add
+push constant 5
+call Math.divide 2
+pop local 2
+push local 2
+push static 0
 add
 pop pointer 1
 push that 0
-push constant 5
+pop local 3
+push local 2
+push static 1
+add
+pop pointer 1
+push that 0
+pop local 4
+push constant 0
+push constant 511
+push this 0
+push this 3
+push local 3
+call Math.multiply 2
+push constant 1000
+call Math.divide 2
+add
+call Math.min 2
+call Math.max 2
+pop local 5
+push constant 0
+push constant 255
+push this 1
+push this 3
+push local 4
+call Math.multiply 2
+push constant 1000
+call Math.divide 2
 sub
+call Math.min 2
+call Math.max 2
+pop local 6
+push local 5
+push local 6
 push this 3
 push this 2
 push constant 12
 push static 0
 push static 1
 call Projectile.new 7
-pop local 2
+pop local 7
 label WHILE_EXP0
-push local 2
+push local 7
 call Projectile.isActive 1
 not
 if-goto WHILE_END0
-push local 2
+push local 7
 call Projectile.update 1
 pop temp 0
-push pointer 0
-push argument 1
-call Tank.draw 2
-pop temp 0
-push local 2
+push local 7
 call Projectile.getX 1
 pop local 0
-push local 2
+push local 7
 call Projectile.getY 1
 pop local 1
 push local 1
@@ -1107,12 +1148,12 @@ push pointer 0
 push argument 1
 push local 0
 push local 1
-push local 2
+push local 7
 call Projectile.getRadius 1
 call Tank.destroyGround 5
 pop temp 0
 label IF_FALSE1
-push local 2
+push local 7
 call Projectile.deactivate 1
 pop temp 0
 goto IF_END0
@@ -1123,7 +1164,7 @@ pop temp 0
 label IF_END0
 goto WHILE_EXP0
 label WHILE_END0
-push local 2
+push local 7
 return
 function Tank.destroyGround 5
 push argument 0
@@ -1311,11 +1352,13 @@ push this 0
 push constant 6
 sub
 push this 1
+push constant 4
+sub
 push this 0
-push constant 5
+push constant 6
 add
 push this 1
-push constant 8
+push constant 4
 add
 call Screen.drawRectangle 4
 pop temp 0
@@ -1352,8 +1395,6 @@ pop local 1
 push constant 0
 push constant 255
 push this 1
-push constant 4
-add
 push this 3
 push local 5
 call Math.multiply 2
@@ -1375,13 +1416,43 @@ goto IF_FALSE1
 label IF_TRUE1
 push this 0
 push this 1
-push constant 4
-add
 push local 1
 push local 2
 call Screen.drawLine 4
 pop temp 0
 label IF_FALSE1
+push this 7
+if-goto IF_TRUE2
+goto IF_FALSE2
+label IF_TRUE2
+push constant 0
+call Screen.setColor 1
+pop temp 0
+push this 0
+push constant 4
+sub
+push this 1
+push this 0
+push constant 4
+add
+push this 1
+call Screen.drawLine 4
+pop temp 0
+push this 0
+push this 1
+push constant 2
+sub
+push this 0
+push this 1
+push constant 2
+add
+call Screen.drawLine 4
+pop temp 0
+push constant 0
+not
+call Screen.setColor 1
+pop temp 0
+label IF_FALSE2
 push constant 0
 return
 function Tank.free 0

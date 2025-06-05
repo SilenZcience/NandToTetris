@@ -4,6 +4,7 @@ class Main {
         var boolean running, gameWon;
 		var PTSDLive game;
         var int level;
+        var String str;
 
         let running = Startscreen.display();
 
@@ -22,6 +23,10 @@ class Main {
             do game.free();
         }
 
+        let str = "GOODBYE!";
+		do Output.moveCursor(10, 30);
+		do Output.printString(str);
+		do str.dispose();
 		return;
 	}
 }

@@ -335,7 +335,7 @@ push this 0
 add
 pop pointer 1
 push that 0
-push constant 9
+push constant 5
 sub
 call Tank.setY 2
 pop temp 0
@@ -487,6 +487,9 @@ push this 1
 push this 0
 call Tank.fire 2
 pop local 1
+push this 1
+call Tank.refuel 1
+pop temp 0
 push pointer 0
 push local 1
 call PTSDLive.applyDamage 2
@@ -536,7 +539,7 @@ label IF_TRUE9
 push constant 0
 return
 label IF_FALSE9
-push constant 10
+push constant 50
 call Sys.wait 1
 pop temp 0
 goto WHILE_EXP0

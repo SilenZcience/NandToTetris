@@ -42,7 +42,7 @@ class Endscreen {
         }
         do str.dispose();
 
-		let str = "w/d-key           to move horizontally";
+		let str = "W/D-key           to move horizontally";
 		do Output.moveCursor(11, 8);
 		do Output.printString(str);
 		do str.dispose();
@@ -57,7 +57,7 @@ class Endscreen {
 		do Output.printString(str);
 		do str.dispose();
 
-		let str = "q-key             to quit";
+		let str = "Q-key             to quit";
 		do Output.moveCursor(14, 8);
 		do Output.printString(str);
 		do str.dispose();

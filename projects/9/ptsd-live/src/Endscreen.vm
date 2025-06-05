@@ -497,11 +497,11 @@ call String.dispose 1
 pop temp 0
 push constant 38
 call String.new 1
-push constant 119
+push constant 87
 call String.appendChar 2
 push constant 47
 call String.appendChar 2
-push constant 100
+push constant 68
 call String.appendChar 2
 push constant 45
 call String.appendChar 2
@@ -786,7 +786,7 @@ call String.dispose 1
 pop temp 0
 push constant 25
 call String.new 1
-push constant 113
+push constant 81
 call String.appendChar 2
 push constant 45
 call String.appendChar 2

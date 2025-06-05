@@ -1,4 +1,4 @@
-function Main.main 4
+function Main.main 5
 call Startscreen.display 0
 pop local 0
 push constant 1
@@ -44,5 +44,34 @@ call PTSDLive.free 1
 pop temp 0
 goto WHILE_EXP0
 label WHILE_END0
+push constant 8
+call String.new 1
+push constant 71
+call String.appendChar 2
+push constant 79
+call String.appendChar 2
+push constant 79
+call String.appendChar 2
+push constant 68
+call String.appendChar 2
+push constant 66
+call String.appendChar 2
+push constant 89
+call String.appendChar 2
+push constant 69
+call String.appendChar 2
+push constant 33
+call String.appendChar 2
+pop local 4
+push constant 10
+push constant 30
+call Output.moveCursor 2
+pop temp 0
+push local 4
+call Output.printString 1
+pop temp 0
+push local 4
+call String.dispose 1
+pop temp 0
 push constant 0
 return

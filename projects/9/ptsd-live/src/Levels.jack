@@ -11,8 +11,8 @@ class Levels {
                 let i = i + 1;
             }
 
-            let allTanks[0] = Tank.new(30, groundHeights[30] - 9);
-            let allTanks[1] = Tank.new(400, groundHeights[400] - 9);
+            let allTanks[0] = Tank.new(30, groundHeights[30] - 5, true);
+            let allTanks[1] = Tank.new(400, groundHeights[400] - 5, false);
         }
         if (level = 2) {
             let i = 0;
@@ -24,9 +24,9 @@ class Levels {
                 let i = i + 1;
             }
 
-            let allTanks[0] = Tank.new(30, groundHeights[30] - 9);
-            let allTanks[1] = Tank.new(400, groundHeights[400] - 9);
-            let allTanks[2] = Tank.new(250, groundHeights[250] - 9);
+            let allTanks[0] = Tank.new(30, groundHeights[30] - 5, true);
+            let allTanks[1] = Tank.new(400, groundHeights[400] - 5, false);
+            let allTanks[2] = Tank.new(250, groundHeights[250] - 5, false);
         }
 
         return;

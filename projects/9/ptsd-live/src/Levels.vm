@@ -36,9 +36,11 @@ push argument 1
 add
 pop pointer 1
 push that 0
-push constant 9
+push constant 5
 sub
-call Tank.new 2
+push constant 0
+not
+call Tank.new 3
 pop temp 0
 pop pointer 1
 push temp 0
@@ -52,9 +54,10 @@ push argument 1
 add
 pop pointer 1
 push that 0
-push constant 9
+push constant 5
 sub
-call Tank.new 2
+push constant 0
+call Tank.new 3
 pop temp 0
 pop pointer 1
 push temp 0
@@ -116,9 +119,11 @@ push argument 1
 add
 pop pointer 1
 push that 0
-push constant 9
+push constant 5
 sub
-call Tank.new 2
+push constant 0
+not
+call Tank.new 3
 pop temp 0
 pop pointer 1
 push temp 0
@@ -132,9 +137,10 @@ push argument 1
 add
 pop pointer 1
 push that 0
-push constant 9
+push constant 5
 sub
-call Tank.new 2
+push constant 0
+call Tank.new 3
 pop temp 0
 pop pointer 1
 push temp 0
@@ -148,9 +154,10 @@ push argument 1
 add
 pop pointer 1
 push that 0
-push constant 9
+push constant 5
 sub
-call Tank.new 2
+push constant 0
+call Tank.new 3
 pop temp 0
 pop pointer 1
 push temp 0
