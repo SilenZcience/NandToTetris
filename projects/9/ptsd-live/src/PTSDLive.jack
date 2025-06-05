@@ -150,6 +150,7 @@ class PTSDLive {
         var char key;
         var Projectile projectile;
         // TODO: draw fuel
+        // TODO: change projectile weapon (change size for different damage)
         while (true) {
             let key = Keyboard.keyPressed();
             if ((key = 97) | (key = 65)) { // 'a' / 'A'

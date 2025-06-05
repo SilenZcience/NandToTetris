@@ -57,14 +57,19 @@ class Endscreen {
 		do Output.printString(str);
 		do str.dispose();
 
-		let str = "Q-key             to quit";
+		let str = "SPACE-key         to shoot";
 		do Output.moveCursor(14, 8);
+		do Output.printString(str);
+		do str.dispose();
+
+		let str = "Q-key             to quit";
+		do Output.moveCursor(15, 8);
 		do Output.printString(str);
 		do str.dispose();
 
 
 		let str = "Press space to begin!";
-		do Output.moveCursor(15, 8);
+		do Output.moveCursor(17, 8);
 		do Output.printString(str);
 		do str.dispose();
 
@@ -81,7 +86,10 @@ class Endscreen {
 		}
 
         do Screen.clearScreen();
-        do Sys.wait(150);
+
+        while (Keyboard.keyPressed() = 32) {
+            do Sys.wait(20);
+        }
         return true;
     }
 }

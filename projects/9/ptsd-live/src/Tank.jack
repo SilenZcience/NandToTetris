@@ -134,7 +134,7 @@ class Tank {
     }
 
     method void moveRight(Array groundHeights) {
-        if ((x < 506) & (Math.abs(groundHeights[x + 4] - groundHeights[x]) < 10) & (fuel > 0)) {
+        if ((x < 504) & (Math.abs(groundHeights[x + 4] - groundHeights[x]) < 10) & (fuel > 0)) {
             let fuel = fuel - 1; // Decrease fuel on movement
             do Screen.setColor(false);
             do draw(groundHeights); // Clear previous position
