@@ -7,7 +7,7 @@ class Main {
         var String str;
 
         let running = Startscreen.display();
-
+        // TODO: highscore?
         let level = 1;
         while (running) {
             let game = PTSDLive.new(level);

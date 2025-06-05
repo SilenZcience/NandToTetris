@@ -58,7 +58,7 @@ class PTSDLive {
             let y = cTank.getY();
             let health = cTank.getHealth();
 
-            do Output.moveCursor(i, 0);
+            do Output.moveCursor(i, 4);
             if (i = 0) {
                 do Output.printString("Player HP: ");
             } else {
@@ -200,7 +200,6 @@ class PTSDLive {
     method boolean run() {
         var char key;
         var Projectile projectile;
-        // TODO: draw fuel
         // TODO: change projectile weapon (change size for different damage)
         while (true) {
             let key = Keyboard.keyPressed();
