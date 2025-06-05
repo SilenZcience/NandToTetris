@@ -132,6 +132,18 @@ class PTSDLive {
         return;
     }
 
+    method void renderAllTanks() {
+        var int i;
+        var Tank cTank;
+        let i = tankAmount -1;
+        while (i > -1) {
+            let cTank = allTanks[i];
+            do cTank.draw(groundHeights);
+            let i = i - 1;
+        }
+        return;
+    }
+
     method boolean allEnemiesDestroyed() {
         var int i;
         var Tank cTank;
@@ -156,10 +168,12 @@ class PTSDLive {
             if ((key = 97) | (key = 65)) { // 'a' / 'A'
                 do playerTank.moveLeft(groundHeights);
                 do drawGround();
+                do renderAllTanks();
             }
             if ((key = 100) | (key = 68)) { // 'd' / 'D'
                 do playerTank.moveRight(groundHeights);
                 do drawGround();
+                do renderAllTanks();
             }
             if ((key = 130)) { // left arrow
                 do playerTank.rotateLeft(groundHeights);

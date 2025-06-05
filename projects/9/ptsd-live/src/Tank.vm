@@ -805,7 +805,7 @@ push this 0
 push constant 6
 gt
 push this 0
-push constant 4
+push constant 7
 sub
 push argument 1
 add
@@ -818,7 +818,7 @@ pop pointer 1
 push that 0
 sub
 call Math.abs 1
-push constant 10
+push constant 15
 lt
 and
 push this 5
@@ -869,7 +869,7 @@ push this 0
 push constant 504
 lt
 push this 0
-push constant 4
+push constant 7
 add
 push argument 1
 add
@@ -882,7 +882,7 @@ pop pointer 1
 push that 0
 sub
 call Math.abs 1
-push constant 10
+push constant 15
 lt
 and
 push this 5
@@ -1096,6 +1096,21 @@ sub
 call Math.min 2
 call Math.max 2
 pop local 6
+push local 6
+push local 5
+push argument 1
+add
+pop pointer 1
+push that 0
+gt
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push this 0
+pop local 5
+push this 1
+pop local 6
+label IF_FALSE0
 push local 5
 push local 6
 push this 3
@@ -1130,9 +1145,9 @@ add
 pop pointer 1
 push that 0
 gt
-if-goto IF_TRUE0
-goto IF_FALSE0
-label IF_TRUE0
+if-goto IF_TRUE1
+goto IF_FALSE1
+label IF_TRUE1
 push local 0
 push constant 1
 neg
@@ -1141,9 +1156,9 @@ push local 0
 push constant 512
 lt
 and
-if-goto IF_TRUE1
-goto IF_FALSE1
-label IF_TRUE1
+if-goto IF_TRUE2
+goto IF_FALSE2
+label IF_TRUE2
 push pointer 0
 push argument 1
 push local 0
@@ -1152,16 +1167,16 @@ push local 7
 call Projectile.getRadius 1
 call Tank.destroyGround 5
 pop temp 0
-label IF_FALSE1
+label IF_FALSE2
 push local 7
 call Projectile.deactivate 1
 pop temp 0
-goto IF_END0
-label IF_FALSE0
+goto IF_END1
+label IF_FALSE1
 push constant 10
 call Sys.wait 1
 pop temp 0
-label IF_END0
+label IF_END1
 goto WHILE_EXP0
 label WHILE_END0
 push local 7
