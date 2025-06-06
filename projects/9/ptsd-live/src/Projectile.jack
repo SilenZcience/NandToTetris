@@ -1,15 +1,16 @@
 class Projectile {
     field int x, y;
-    field int radius;
+    field int radius, weaponType;
     field int vx, vy;
     field int vycycle;
     field boolean active;
 
-    constructor Projectile new(int startX, int startY, int velocity, int angle, int radius_, Array sinTable, Array cosTable) {
+    constructor Projectile new(int startX, int startY, int velocity, int angle, int weaponType_, Array sinTable, Array cosTable) {
         var int idx;
         let x = startX;
         let y = startY;
-        let radius = radius_;
+        let radius = (weaponType_ * 10) + 2;
+        let weaponType = weaponType_;
         let active = true;
         let vycycle = 0;
         // angle: -90 to +90, in steps of 5
@@ -23,6 +24,10 @@ class Projectile {
 
     method int getRadius() {
         return radius;
+    }
+
+    method int getWeaponType() {
+        return weaponType;
     }
 
     method void update() {
@@ -56,14 +61,16 @@ class Projectile {
     }
 
     method void draw() {
-        if ((y < 2)) {
+        var int size;
+        let size = weaponType + 1;
+        if ((y < size)) {
             return;
         }
-        if ((x < 2) | (x > 509) | (y > 253)) {
+        if ((x < size) | (x > (511 - size)) | (y > (255 - size))) {
             do deactivate(); // Deactivate if it goes below the screen
             return;
         }
-        do Screen.drawCircle(x, y, 2);
+        do Screen.drawCircle(x, y, size);
         return;
     }
 

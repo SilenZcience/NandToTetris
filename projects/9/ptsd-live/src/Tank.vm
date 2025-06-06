@@ -1337,7 +1337,7 @@ call Math.max 2
 pop local 6
 push local 6
 push local 5
-push argument 1
+push argument 2
 add
 pop pointer 1
 push that 0
@@ -1354,7 +1354,7 @@ push local 5
 push local 6
 push this 3
 push this 2
-push constant 12
+push argument 1
 push static 0
 push static 1
 call Projectile.new 7
@@ -1377,12 +1377,12 @@ push constant 0
 pop local 7
 label WHILE_EXP1
 push local 7
-push argument 3
+push argument 4
 lt
 not
 if-goto WHILE_END1
 push local 7
-push argument 2
+push argument 3
 add
 pop pointer 1
 push that 0
@@ -1416,18 +1416,22 @@ sub
 pop local 11
 push local 10
 push local 12
-call Projectile.getRadius 1
+call Projectile.getWeaponType 1
+push constant 1
+add
 lt
 push local 11
 push local 12
-call Projectile.getRadius 1
+call Projectile.getWeaponType 1
+push constant 1
+add
 lt
 and
 if-goto IF_TRUE2
 goto IF_FALSE2
 label IF_TRUE2
 push pointer 0
-push argument 1
+push argument 2
 push local 0
 push local 1
 push local 12
@@ -1453,7 +1457,7 @@ push constant 511
 push local 0
 call Math.min 2
 call Math.max 2
-push argument 1
+push argument 2
 add
 pop pointer 1
 push that 0
@@ -1473,7 +1477,7 @@ if-goto IF_TRUE4
 goto IF_FALSE4
 label IF_TRUE4
 push pointer 0
-push argument 1
+push argument 2
 push local 0
 push local 1
 push local 12
@@ -1749,10 +1753,6 @@ push local 2
 call Screen.drawLine 4
 pop temp 0
 label IF_FALSE1
-push this 7
-if-goto IF_TRUE2
-goto IF_FALSE2
-label IF_TRUE2
 push constant 0
 call Screen.setColor 1
 pop temp 0
@@ -1766,6 +1766,10 @@ add
 push this 1
 call Screen.drawLine 4
 pop temp 0
+push this 7
+if-goto IF_TRUE2
+goto IF_FALSE2
+label IF_TRUE2
 push this 0
 push this 1
 push constant 2
@@ -1773,6 +1777,63 @@ sub
 push this 0
 push this 1
 push constant 2
+add
+call Screen.drawLine 4
+pop temp 0
+label IF_FALSE2
+push this 0
+push constant 4
+sub
+push this 1
+push constant 4
+add
+push this 0
+push constant 4
+sub
+push this 1
+push constant 4
+add
+call Screen.drawLine 4
+pop temp 0
+push this 0
+push constant 2
+sub
+push this 1
+push constant 4
+add
+push this 0
+push constant 2
+sub
+push this 1
+push constant 4
+add
+call Screen.drawLine 4
+pop temp 0
+push this 0
+push constant 4
+add
+push this 1
+push constant 4
+add
+push this 0
+push constant 4
+add
+push this 1
+push constant 4
+add
+call Screen.drawLine 4
+pop temp 0
+push this 0
+push constant 2
+add
+push this 1
+push constant 4
+add
+push this 0
+push constant 2
+add
+push this 1
+push constant 4
 add
 call Screen.drawLine 4
 pop temp 0
@@ -1780,7 +1841,6 @@ push constant 0
 not
 call Screen.setColor 1
 pop temp 0
-label IF_FALSE2
 push constant 0
 return
 function Tank.free 0

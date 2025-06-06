@@ -249,7 +249,7 @@ class Tank {
         return;
     }
 
-    method Projectile fire(Array groundHeights, Array allTanks, int tankAmount) {
+    method Projectile fire(int weaponType, Array groundHeights, Array allTanks, int tankAmount) {
         var int pX, pY, idx, sin, cos, pipeX, pipeY, i;
         var int tankX, tankY, dx, dy;
         var Projectile projectile;
@@ -264,7 +264,7 @@ class Tank {
             let pipeX = x;
             let pipeY = y;
         }
-        let projectile = Projectile.new(pipeX, pipeY, pipeLen, pipeAngle, 12, sinTable, cosTable);
+        let projectile = Projectile.new(pipeX, pipeY, pipeLen, pipeAngle, weaponType, sinTable, cosTable);
 
         while (projectile.isActive()) {
             do projectile.update();
@@ -282,7 +282,7 @@ class Tank {
 
                     let dx = Math.abs(tankX - pX) - 6;
                     let dy = Math.abs(tankY - pY) - 4;
-                    if ((dx < projectile.getRadius()) & (dy < projectile.getRadius())) {
+                    if ((dx < (projectile.getWeaponType() + 1)) & (dy < (projectile.getWeaponType() + 1))) {
                         do destroyGround(groundHeights, pX, pY, projectile.getRadius());
                         do projectile.deactivate();
                         return projectile;
@@ -364,12 +364,17 @@ class Tank {
             do Screen.drawLine(x, y, pipeX, pipeY);
         }
 
+        do Screen.setColor(false);
+        do Screen.drawLine(x - 4, y, x + 4, y);
         if (playerTank) {
-            do Screen.setColor(false);
-            do Screen.drawLine(x - 4, y, x + 4, y);
             do Screen.drawLine(x, y - 2, x, y + 2);
-            do Screen.setColor(true);
         }
+
+        do Screen.drawLine(x - 4, y + 4, x - 4, y + 4);
+        do Screen.drawLine(x - 2, y + 4, x - 2, y + 4);
+        do Screen.drawLine(x + 4, y + 4, x + 4, y + 4);
+        do Screen.drawLine(x + 2, y + 4, x + 2, y + 4);
+        do Screen.setColor(true);
 
         return;
     }

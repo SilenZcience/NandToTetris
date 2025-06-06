@@ -5,6 +5,7 @@ class PTSDLive {
 
     field int level;
     field int tankAmount;
+    field int currentWeapon; // 0 = sniper, 1 = medium, 2 = big
 
     constructor PTSDLive new(int level_) {
         var int i;
@@ -12,6 +13,7 @@ class PTSDLive {
 
         let level = level_;
         let tankAmount = Levels.tankAmount(level);
+        let currentWeapon = 1;
 
         let groundHeights = Array.new(512);
         let allTanks = Array.new(tankAmount);
@@ -87,7 +89,7 @@ class PTSDLive {
         var String str;
 
         do Screen.setColor(false);
-        do Screen.drawRectangle(425, 0, 480, 60);
+        do Screen.drawRectangle(415, 0, 480, 60);
         do Screen.setColor(true);
 
         let sinTable = Tank.getSinTable(); // Get the precomputed trig table
@@ -102,7 +104,7 @@ class PTSDLive {
         do Screen.setColor(true);
         do Screen.drawLine(centerX-radius, centerY, centerX+radius, centerY);
         do Screen.setColor(false);
-        do Screen.drawRectangle(425, centerY+1, 480, 60);
+        do Screen.drawRectangle(415, centerY+1, 480, 60);
         do Screen.setColor(true);
 
         do Output.moveCursor(1, 55);
@@ -118,11 +120,18 @@ class PTSDLive {
         let pipeY = Math.max(0, Math.min(255, centerY - ((25 * cos) / 1000)));
 
         do Screen.drawLine(centerX, centerY, pipeX, pipeY);
+
+        do Screen.drawCircle(421, 10, 5);
+        do Screen.setColor(false);
+        do Screen.drawCircle(421, 10, 4);
+        do Screen.setColor(true);
+        do Screen.drawCircle(421, 10, currentWeapon + 1);
+
         return;
     }
 
     method void applyDamage(Projectile projectile) {
-        var int i, pX, pY, radius, dx, dy, tankX, tankY;
+        var int i, pX, pY, radius, dx, dy, tankX, tankY, damage;
         var Tank cTank;
         let pX = projectile.getX();
         let pY = projectile.getY();
@@ -155,8 +164,17 @@ class PTSDLive {
             // do Output.printInt(dy);
 
             if ((dx < radius) & (dy < radius)) {
+                if (projectile.getWeaponType() = 0) {
+                    let damage = 80;
+                }
+                if (projectile.getWeaponType() = 1) {
+                    let damage = 40;
+                }
+                if (projectile.getWeaponType() = 2) {
+                    let damage = 20;
+                }
                 // Square distance check yields too large values ...
-                do cTank.applyDamage(52 - (2 * radius), groundHeights); // TODO: fix damage
+                do cTank.applyDamage(damage, groundHeights);
             }
 
             let i = i + 1;
@@ -249,7 +267,7 @@ class PTSDLive {
                 }
 
                 // Fire at player
-                let projectile = enemyTank.fire(groundHeights);
+                let projectile = enemyTank.fire(1, groundHeights, allTanks, tankAmount);
                 do applyDamage(projectile);
                 do projectile.free();
             }
@@ -263,12 +281,31 @@ class PTSDLive {
         return;
     }
 
+    method void switchWeapon() {
+        let currentWeapon = currentWeapon + 1;
+        if (currentWeapon > 2) {
+            let currentWeapon = 0;
+        }
+        return;
+    }
+
+    method char getkeyPressed() {
+        var char key;
+        let key = Keyboard.keyPressed();
+        if ((key = 32) | (key = 113) | (key = 81) | (key = 140)) { // Space, Q, ESC
+            while (Keyboard.keyPressed() = key) {
+                do Sys.wait(20);
+            }
+        }
+        return key;
+    }
+
     method boolean run() {
         var char key;
         var Projectile projectile;
-        // TODO: change projectile weapon (change size for different damage)
+
         while (true) {
-            let key = Keyboard.keyPressed();
+            let key = getkeyPressed();
             if ((key = 97) | (key = 65)) { // 'a' / 'A'
                 do playerTank.moveLeft(groundHeights);
                 do drawGround();
@@ -294,7 +331,7 @@ class PTSDLive {
                 do playerTank.decreasePower(groundHeights);
             }
             if ((key = 32)) { // space bar
-                let projectile = playerTank.fire(groundHeights, allTanks, tankAmount);
+                let projectile = playerTank.fire(currentWeapon, groundHeights, allTanks, tankAmount);
                 do playerTank.refuel();
                 do applyDamage(projectile);
                 do projectile.free();
@@ -318,6 +355,10 @@ class PTSDLive {
                 if (allEnemiesDestroyed()) {
                     return true;
                 }
+            }
+            if ((key = 113) | (key = 81)) { // 'q' / 'Q'
+                do switchWeapon();
+                do drawFuel();
             }
             if ((key = 140)) { // ESC-key
                 return false;

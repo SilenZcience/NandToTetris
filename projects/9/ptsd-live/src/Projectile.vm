@@ -1,5 +1,5 @@
 function Projectile.new 1
-push constant 7
+push constant 8
 call Memory.alloc 1
 pop pointer 0
 push argument 0
@@ -7,12 +7,18 @@ pop this 0
 push argument 1
 pop this 1
 push argument 4
+push constant 10
+call Math.multiply 2
+push constant 2
+add
 pop this 2
+push argument 4
+pop this 3
 push constant 0
 not
-pop this 6
+pop this 7
 push constant 0
-pop this 5
+pop this 6
 push argument 3
 push constant 100
 add
@@ -28,7 +34,7 @@ push that 0
 call Math.multiply 2
 push constant 2000
 call Math.divide 2
-pop this 3
+pop this 4
 push argument 2
 push local 0
 push argument 6
@@ -39,7 +45,7 @@ call Math.multiply 2
 push constant 2000
 call Math.divide 2
 neg
-pop this 4
+pop this 5
 push pointer 0
 return
 function Projectile.getRadius 0
@@ -47,34 +53,39 @@ push argument 0
 pop pointer 0
 push this 2
 return
+function Projectile.getWeaponType 0
+push argument 0
+pop pointer 0
+push this 3
+return
 function Projectile.update 0
 push argument 0
 pop pointer 0
-push this 5
+push this 6
 push constant 1
 add
-pop this 5
-push this 5
+pop this 6
+push this 6
 push constant 3
 gt
 if-goto IF_TRUE0
 goto IF_FALSE0
 label IF_TRUE0
 push constant 0
-pop this 5
-push this 4
+pop this 6
+push this 5
 push constant 1
 add
-pop this 4
+pop this 5
 label IF_FALSE0
 push pointer 0
 push this 0
 push this 1
 push this 0
-push this 3
+push this 4
 add
 push this 1
-push this 4
+push this 5
 add
 call Projectile.drawPath 5
 pop temp 0
@@ -147,11 +158,15 @@ goto WHILE_EXP0
 label WHILE_END0
 push constant 0
 return
-function Projectile.draw 0
+function Projectile.draw 1
 push argument 0
 pop pointer 0
+push this 3
+push constant 1
+add
+pop local 0
 push this 1
-push constant 2
+push local 0
 lt
 if-goto IF_TRUE0
 goto IF_FALSE0
@@ -160,14 +175,18 @@ push constant 0
 return
 label IF_FALSE0
 push this 0
-push constant 2
+push local 0
 lt
 push this 0
-push constant 509
+push constant 511
+push local 0
+sub
 gt
 or
 push this 1
-push constant 253
+push constant 255
+push local 0
+sub
 gt
 or
 if-goto IF_TRUE1
@@ -181,7 +200,7 @@ return
 label IF_FALSE1
 push this 0
 push this 1
-push constant 2
+push local 0
 call Screen.drawCircle 3
 pop temp 0
 push constant 0
@@ -189,13 +208,13 @@ return
 function Projectile.isActive 0
 push argument 0
 pop pointer 0
-push this 6
+push this 7
 return
 function Projectile.deactivate 0
 push argument 0
 pop pointer 0
 push constant 0
-pop this 6
+pop this 7
 push constant 0
 return
 function Projectile.getX 0
