@@ -1,8 +1,7 @@
+
 class Levels {
     function void initLevel(int level, Array groundHeights, Array allTanks) {
         var int i;
-
-
 
         if (level = 1) {
             let i = 0;
@@ -28,10 +27,182 @@ class Levels {
             let allTanks[1] = Tank.new(400, groundHeights[400] - 5, false);
             let allTanks[2] = Tank.new(250, groundHeights[250] - 5, false);
         }
+        if (level = 3) {
+            let i = 0;
+            while (i < 512) {
+                let groundHeights[i] = 150; // Flat ground at y=150
+                if ((i > 250) & (i < 262)) {
+                    let groundHeights[i] = 0; // wall in the middle
+                }
+                let i = i + 1;
+            }
+
+            let allTanks[0] = Tank.new(160, groundHeights[160] - 5, true);
+            let allTanks[1] = Tank.new(50, groundHeights[50] - 5, false);
+            let allTanks[2] = Tank.new(320, groundHeights[320] - 5, false);
+        }
+        if (level = 4) {
+            let i = 0;
+            while (i < 512) { // hole with walls to the side
+                let groundHeights[i] = 150; // Flat ground at y=150
+                if ((i > 137) & (i < 157)) {
+                    let groundHeights[i] = 130;
+                }
+                if ((i > 156) & (i < 356)) {
+                    let groundHeights[i] = 230;
+                }
+                if ((i > 355) & (i < 375)) {
+                    let groundHeights[i] = 130;
+                }
+                let i = i + 1;
+            }
+
+            let allTanks[0] = Tank.new(100, groundHeights[100] - 5, true);
+            let allTanks[1] = Tank.new(400, groundHeights[400] - 5, false);
+            let allTanks[2] = Tank.new(256, groundHeights[256] - 5, false);
+        }
+        if (level = 5) {
+            let i = 0;
+            while (i < 512) { // descending steps
+                let groundHeights[i] = 80; // Flat ground at y=150
+                if ((i > 100) & (i < 200)) {
+                    let groundHeights[i] = 120;
+                }
+                if ((i > 200) & (i < 300)) {
+                    let groundHeights[i] = 160;
+                }
+                if ((i > 300) & (i < 400)) {
+                    let groundHeights[i] = 200;
+                }
+                if ((i > 400) & (i < 500)) {
+                    let groundHeights[i] = 240;
+                }
+                let i = i + 1;
+            }
+
+            let allTanks[0] = Tank.new(30, groundHeights[30] - 5, true);
+            let allTanks[1] = Tank.new(450, groundHeights[450] - 5, false);
+            let allTanks[2] = Tank.new(250, groundHeights[250] - 5, false);
+        }
+        if (level = 6) {
+            let i = 0;
+            while (i < 512) { // descending steps
+                let groundHeights[i] = 80; // Flat ground at y=150
+                if ((i > 100) & (i < 200)) {
+                    let groundHeights[i] = 120;
+                }
+                if ((i > 200) & (i < 300)) {
+                    let groundHeights[i] = 160;
+                }
+                if ((i > 300) & (i < 400)) {
+                    let groundHeights[i] = 200;
+                }
+                if ((i > 400) & (i < 500)) {
+                    let groundHeights[i] = 240;
+                }
+                let i = i + 1;
+            }
+
+            let allTanks[0] = Tank.new(30,  groundHeights[30] - 5, true);
+            let allTanks[1] = Tank.new(200, groundHeights[200] - 5, false);
+            let allTanks[2] = Tank.new(300, groundHeights[300] - 5, false);
+            let allTanks[3] = Tank.new(400, groundHeights[400] - 5, false);
+        }
+        if (level = 7) {
+            let i = 0;
+            while (i < 512) { // descending stairs
+                let groundHeights[i] = (i / 3) + 75;
+                let i = i + 1;
+            }
+
+            let allTanks[0] = Tank.new(200, groundHeights[200] - 5, true);
+            let allTanks[1] = Tank.new(30,  groundHeights[30] - 5, false);
+            let allTanks[2] = Tank.new(300, groundHeights[300] - 5, false);
+            let allTanks[3] = Tank.new(400, groundHeights[400] - 5, false);
+        }
+        if (level = 8) {
+            let i = 0;
+            while (i < 512) { // two walls/ three areas
+                let groundHeights[i] = 150;
+
+                if ((i > 236) & (i < 276)) {
+                    let groundHeights[i] = 50;
+                }
+                if ((i > 350) & (i < 410)) {
+                    let groundHeights[i] = 30;
+                }
+                let i = i + 1;
+            }
+
+            let allTanks[0] = Tank.new(30,  groundHeights[30] - 5, true);
+            let allTanks[1] = Tank.new(180, groundHeights[180] - 5, false);
+            let allTanks[2] = Tank.new(300, groundHeights[300] - 5, false);
+            let allTanks[3] = Tank.new(450, groundHeights[450] - 5, false);
+            let allTanks[4] = Tank.new(500, groundHeights[500] - 5, false);
+        }
+        if (level = 9) {
+            let i = 0;
+            while (i < 512) {
+                let groundHeights[i] = 100; // hill
+                if ((i > 82) & (i < 430)) {
+                    let groundHeights[i] = - (((i - 256) * (i - 256)) / 300) + 200;
+                }
+                let i = i + 1;
+            }
+
+            let allTanks[0] = Tank.new(256, groundHeights[256] - 5, true);
+            let allTanks[1] = Tank.new(30,  groundHeights[30] - 5,  false);
+            let allTanks[2] = Tank.new(156, groundHeights[156] - 5, false);
+            let allTanks[3] = Tank.new(356, groundHeights[356] - 5, false);
+            let allTanks[4] = Tank.new(481, groundHeights[481] - 5, false);
+        }
+        if (level = 10) {
+            let i = 0;
+            while (i < 512) {
+                let groundHeights[i] = 150; // hill
+                if ((i > 82) & (i < 430)) {
+                    let groundHeights[i] = ((i - 256) * (i - 256)) / 300 + 50;
+                }
+                let i = i + 1;
+            }
+
+            let allTanks[0] = Tank.new(256, groundHeights[256] - 5, true);
+            let allTanks[1] = Tank.new(30,  groundHeights[30] - 5,  false);
+            let allTanks[2] = Tank.new(156, groundHeights[156] - 5, false);
+            let allTanks[3] = Tank.new(356, groundHeights[356] - 5, false);
+            let allTanks[4] = Tank.new(481, groundHeights[481] - 5, false);
+        }
+        if (level = 11) { // get fucked
+            let i = 0;
+            while (i < 256) {
+                let groundHeights[i] = 150;
+                if ((i > 82) & (i < 430)) {
+                    let groundHeights[i] = ((i - 256) * (i - 256)) / 300 + 50;
+                }
+                let groundHeights[i] = Math.min(groundHeights[i] + (i / 3), 255);
+                let i = i + 1;
+            }
+            let i = 0;
+            while (i < 256) {
+                let groundHeights[256 + i] = groundHeights[256 - i];
+                let i = i + 1;
+            }
+            let groundHeights[256] = 130;
+
+            let allTanks[0] = Tank.new(256, groundHeights[256] - 5, true);
+            let allTanks[1] = Tank.new(256, groundHeights[256] - 5,  false);
+            let allTanks[2] = Tank.new(100, groundHeights[100] - 5, false);
+            let allTanks[3] = Tank.new(100, groundHeights[100] - 5, false);
+            let allTanks[4] = Tank.new(100, groundHeights[100] - 5, false);
+            let allTanks[5] = Tank.new(100, groundHeights[100] - 5, false);
+            let allTanks[6] = Tank.new(411, groundHeights[411] - 5, false);
+            let allTanks[7] = Tank.new(411, groundHeights[411] - 5, false);
+            let allTanks[8] = Tank.new(411, groundHeights[411] - 5, false);
+            let allTanks[9] = Tank.new(411, groundHeights[411] - 5, false);
+        }
 
         return;
     }
-
 
     function int tankAmount(int level) {
         if (level = 1) {
@@ -40,7 +211,33 @@ class Levels {
         if (level = 2) {
             return 3;
         }
+        if (level = 3) {
+            return 3;
+        }
+        if (level = 4) {
+            return 3;
+        }
+        if (level = 5) {
+            return 3;
+        }
+        if (level = 6) {
+            return 4;
+        }
+        if (level = 7) {
+            return 4;
+        }
+        if (level = 8) {
+            return 5;
+        }
+        if (level = 9) {
+            return 5;
+        }
+        if (level = 10) {
+            return 5;
+        }
+        if (level = 11) {
+            return 10;
+        }
         return 0;
     }
-
 }
