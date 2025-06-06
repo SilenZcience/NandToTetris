@@ -224,8 +224,8 @@ class PTSDLive {
         return true;
     }
 
-    method void enemyTurn() { // TODO: make smarter AI
-        var int i, playerX, playerY, enemyX, enemyY, dx, moveSteps, aimSteps;
+    method void enemyTurn() {
+        var int i, dx, aiAngle, aiOffset, playerX, playerY, enemyX, enemyY, randA, randB;
         var Tank enemyTank;
         var Projectile projectile;
 
@@ -240,32 +240,53 @@ class PTSDLive {
                 let enemyX = enemyTank.getX();
                 let enemyY = enemyTank.getY();
 
-                // Move enemy tank towards player
-                let moveSteps = 0;
-                while ((moveSteps < 100) & (Math.abs(enemyTank.getX() - playerX) > 50)) {
-                    if (enemyX < playerX) {
-                        do enemyTank.moveRight(groundHeights);
-                    } else {
-                        do enemyTank.moveLeft(groundHeights);
+                // Move enemy tank randomly
+                let randA = LCGRandom.randRange(0, 2);
+                if (randA < 2) {
+                    let randB = LCGRandom.randRange(1, 50);
+                    while ((randB > 0) & (Math.abs(enemyX - playerX) > 50)) {
+                        if (randA = 0) {
+                            do enemyTank.moveRight(groundHeights);
+                        } else {
+                            do enemyTank.moveLeft(groundHeights);
+                        }
+                        let randB = randB - 1;
+                        do drawGround();
+                        do renderAllTanks();
+                        do Sys.wait(20);
                     }
-                    let moveSteps = moveSteps + 1;
-                    do drawGround();
-                    do renderAllTanks();
-                    do Sys.wait(20);
                 }
+
+                let dx = Math.abs(enemyX - playerX);
+                if ((dx < 261) & (enemyTank.getPipeLen() > 15)) {
+                    do enemyTank.decreasePower(groundHeights);
+                }
+
+                let aiAngle = Tank.bestAIAngle(dx);
+                // let aiOffset = Tank.bestAIOffset(aiAngle);
+                if (playerX < enemyX) {
+                    let aiAngle = - aiAngle;
+                }
+                // do Output.moveCursor(5, 0);
+                // do Output.printInt(aiAngle);
+                // do Output.moveCursor(5, 5);
+                // do Output.printInt(enemyTank.getPipeAngle());
+                while (enemyTank.getPipeAngle() < aiAngle) {
+                    do enemyTank.rotateRight(groundHeights);
+                }
+                while (enemyTank.getPipeAngle() > aiAngle) {
+                    do enemyTank.rotateLeft(groundHeights);
+                }
+
+
+
+
+
+                if (dx > 260) {
+                    do enemyTank.increasePower(groundHeights);
+                }
+
                 do enemyTank.refuel();
-
-                let aimSteps = 0;
-                while (aimSteps < 10) {
-                    if (enemyX < playerX) {
-                        do enemyTank.rotateRight(groundHeights);
-                    } else {
-                        do enemyTank.rotateLeft(groundHeights);
-                    }
-                    let aimSteps = aimSteps + 1;
-                    do Sys.wait(20);
-                }
-
                 // Fire at player
                 let projectile = enemyTank.fire(1, groundHeights, allTanks, tankAmount);
                 do applyDamage(projectile);

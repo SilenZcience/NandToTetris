@@ -1,4 +1,7 @@
 function Main.main 5
+push constant 1283
+call LCGRandom.setSeed 1
+pop temp 0
 call Startscreen.display 0
 pop local 0
 push constant 1

@@ -617,15 +617,15 @@ label WHILE_END0
 push constant 0
 not
 return
-function PTSDLive.enemyTurn 10
+function PTSDLive.enemyTurn 12
 push argument 0
 pop pointer 0
 push this 1
 call Tank.getX 1
-pop local 1
+pop local 4
 push this 1
 call Tank.getY 1
-pop local 2
+pop local 5
 push constant 1
 pop local 0
 label WHILE_EXP0
@@ -639,29 +639,40 @@ push this 2
 add
 pop pointer 1
 push that 0
-pop local 8
-push local 8
+pop local 10
+push local 10
 call Tank.getHealth 1
 push constant 0
 gt
 if-goto IF_TRUE0
 goto IF_FALSE0
 label IF_TRUE0
-push local 8
+push local 10
 call Tank.getX 1
-pop local 3
-push local 8
-call Tank.getY 1
-pop local 4
-push constant 0
 pop local 6
-label WHILE_EXP1
-push local 6
-push constant 100
-lt
+push local 10
+call Tank.getY 1
+pop local 7
+push constant 0
+push constant 2
+call LCGRandom.randRange 2
+pop local 8
 push local 8
-call Tank.getX 1
-push local 1
+push constant 2
+lt
+if-goto IF_TRUE1
+goto IF_FALSE1
+label IF_TRUE1
+push constant 1
+push constant 50
+call LCGRandom.randRange 2
+pop local 9
+label WHILE_EXP1
+push local 9
+push constant 0
+gt
+push local 6
+push local 4
 sub
 call Math.abs 1
 push constant 50
@@ -669,27 +680,27 @@ gt
 and
 not
 if-goto WHILE_END1
-push local 3
-push local 1
-lt
-if-goto IF_TRUE1
-goto IF_FALSE1
-label IF_TRUE1
 push local 8
+push constant 0
+eq
+if-goto IF_TRUE2
+goto IF_FALSE2
+label IF_TRUE2
+push local 10
 push this 0
 call Tank.moveRight 2
 pop temp 0
-goto IF_END1
-label IF_FALSE1
-push local 8
+goto IF_END2
+label IF_FALSE2
+push local 10
 push this 0
 call Tank.moveLeft 2
 pop temp 0
-label IF_END1
-push local 6
+label IF_END2
+push local 9
 push constant 1
-add
-pop local 6
+sub
+pop local 9
 push pointer 0
 call PTSDLive.drawGround 1
 pop temp 0
@@ -701,55 +712,93 @@ call Sys.wait 1
 pop temp 0
 goto WHILE_EXP1
 label WHILE_END1
-push local 8
-call Tank.refuel 1
+label IF_FALSE1
+push local 6
+push local 4
+sub
+call Math.abs 1
+pop local 1
+push local 1
+push constant 261
+lt
+push local 10
+call Tank.getPipeLen 1
+push constant 15
+gt
+and
+if-goto IF_TRUE3
+goto IF_FALSE3
+label IF_TRUE3
+push local 10
+push this 0
+call Tank.decreasePower 2
 pop temp 0
-push constant 0
-pop local 7
+label IF_FALSE3
+push local 1
+call Tank.bestAIAngle 1
+pop local 2
+push local 4
+push local 6
+lt
+if-goto IF_TRUE4
+goto IF_FALSE4
+label IF_TRUE4
+push local 2
+neg
+pop local 2
+label IF_FALSE4
 label WHILE_EXP2
-push local 7
-push constant 10
+push local 10
+call Tank.getPipeAngle 1
+push local 2
 lt
 not
 if-goto WHILE_END2
-push local 3
-push local 1
-lt
-if-goto IF_TRUE2
-goto IF_FALSE2
-label IF_TRUE2
-push local 8
+push local 10
 push this 0
 call Tank.rotateRight 2
 pop temp 0
-goto IF_END2
-label IF_FALSE2
-push local 8
+goto WHILE_EXP2
+label WHILE_END2
+label WHILE_EXP3
+push local 10
+call Tank.getPipeAngle 1
+push local 2
+gt
+not
+if-goto WHILE_END3
+push local 10
 push this 0
 call Tank.rotateLeft 2
 pop temp 0
-label IF_END2
-push local 7
-push constant 1
-add
-pop local 7
-push constant 20
-call Sys.wait 1
+goto WHILE_EXP3
+label WHILE_END3
+push local 1
+push constant 260
+gt
+if-goto IF_TRUE5
+goto IF_FALSE5
+label IF_TRUE5
+push local 10
+push this 0
+call Tank.increasePower 2
 pop temp 0
-goto WHILE_EXP2
-label WHILE_END2
-push local 8
+label IF_FALSE5
+push local 10
+call Tank.refuel 1
+pop temp 0
+push local 10
 push constant 1
 push this 0
 push this 2
 push this 4
 call Tank.fire 5
-pop local 9
+pop local 11
 push pointer 0
-push local 9
+push local 11
 call PTSDLive.applyDamage 2
 pop temp 0
-push local 9
+push local 11
 call Projectile.free 1
 pop temp 0
 label IF_FALSE0

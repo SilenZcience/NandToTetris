@@ -116,6 +116,59 @@ class Tank {
         return;
     }
 
+    function int bestAIOffset(int angle) { // "best" at best :)
+        if (angle = 5) {
+            return 1;
+        }
+        if (angle = 10) {
+            return 63;
+        }
+        if (angle = 15) {
+            return 64;
+        }
+        if (angle = 20) {
+            return 127;
+        }
+        if (angle = 25) {
+            return 165;
+        }
+        if (angle = 30) {
+            return 166;
+        }
+        if (angle = 35) {
+            return 220;
+        }
+        if (angle = 45) {
+            return 235;
+        }
+        return 0; // Default case, should not happen
+    }
+
+    function int bestAIAngle(int xDiff) { // "best" at best :)
+        if (xDiff < 31) {
+            return 5;
+        }
+        if (xDiff < 64) {
+            return 10;
+        }
+        if (xDiff < 95) {
+            return 15;
+        }
+        if (xDiff < 146) {
+            return 20;
+        }
+        if (xDiff < 166) {
+            return 25;
+        }
+        if (xDiff < 193) {
+            return 30;
+        }
+        if (xDiff < 227) {
+            return 35;
+        }
+        return 45;
+    }
+
     constructor Tank new(int startX, int startY, boolean playerTank_) {
         let x = startX;
         let y = startY;
@@ -158,6 +211,14 @@ class Tank {
         return fuel;
     }
 
+    method int getPipeAngle() {
+        return pipeAngle;
+    }
+
+    method int getPipeLen() {
+        return pipeLen;
+    }
+
     method void refuel() {
         let fuel = 100;
         return;
@@ -165,7 +226,7 @@ class Tank {
 
     method void applyDamage(int damage, Array groundHeights) {
         var int location;
-        if (destroyed | playerTank) {
+        if (destroyed) {
             return;
         }
         let health = Math.max(0, health - damage);
@@ -183,7 +244,7 @@ class Tank {
         return;
     }
 
-    method void moveLeft(Array groundHeights) {
+    method void moveLeft(Array groundHeights) { // TODO: maybe allow falling down + falldamage?
         if ((x > 6) & (Math.abs(groundHeights[x - 7] - groundHeights[x]) < 15) & (fuel > 0)) {
             let fuel = fuel - 1; // Decrease fuel on movement
             do Screen.setColor(false);
@@ -298,6 +359,12 @@ class Tank {
             // Hit the ground?
             if (pY > groundHeights[Math.max(0, Math.min(511, pX))]) {
                 if ((pX > -1) & (pX < 512)) {
+                    // do Output.moveCursor(5, 0);
+                    // do Output.printInt(pipeAngle);
+                    // do Output.moveCursor(5, 5);
+                    // do Output.printInt(pX);
+                    // do Output.moveCursor(5, 10);
+                    // do Output.printInt(pY);
                     do destroyGround(groundHeights, pX, pY, projectile.getRadius());
                 }
                 do projectile.deactivate();

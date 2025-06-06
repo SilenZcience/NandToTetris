@@ -13,11 +13,19 @@ class Projectile {
         let weaponType = weaponType_;
         let active = true;
         let vycycle = 0;
-        // angle: -90 to +90, in steps of 5
+
         let idx = (angle + 100) / 5;
         // velocity is pipeLen, sin/cos are scaled by 1000
         let vx = (velocity * sinTable[idx]) / 2000; // scale down for game speed
         let vy = -((velocity * cosTable[idx]) / 2000); // negative because y increases downward
+
+
+        // do Output.moveCursor(6, 0);
+        // do Output.printInt(idx);
+        // do Output.moveCursor(6, 3);
+        // do Output.printInt(vx);
+        // do Output.moveCursor(6, 6);
+        // do Output.printInt(vy);
 
         return this;
     }
