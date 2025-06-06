@@ -127,7 +127,7 @@ class PTSDLive {
         do Screen.setColor(true);
         do Screen.drawCircle(421, 10, currentWeapon + 1);
 
-        do Output.moveCursor(3, 55);
+        do Output.moveCursor(3, 54);
         let str = "Level: ";
         do Output.printString(str);
         do str.dispose();

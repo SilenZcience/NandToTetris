@@ -54,10 +54,10 @@ pop local 0
 goto WHILE_EXP0
 label WHILE_END0
 push pointer 0
-call PTSDLive.drawHealth 1
+call PTSDLive.drawUITopLeft 1
 pop temp 0
 push pointer 0
-call PTSDLive.drawFuel 1
+call PTSDLive.drawUITopRight 1
 pop temp 0
 push pointer 0
 return
@@ -92,7 +92,7 @@ goto WHILE_EXP0
 label WHILE_END0
 push constant 0
 return
-function PTSDLive.drawHealth 6
+function PTSDLive.drawUITopLeft 6
 push argument 0
 pop pointer 0
 push constant 0
@@ -230,7 +230,7 @@ goto WHILE_EXP0
 label WHILE_END0
 push constant 0
 return
-function PTSDLive.drawFuel 11
+function PTSDLive.drawUITopRight 11
 push argument 0
 pop pointer 0
 push constant 0
@@ -395,6 +395,36 @@ push this 5
 push constant 1
 add
 call Screen.drawCircle 3
+pop temp 0
+push constant 3
+push constant 54
+call Output.moveCursor 2
+pop temp 0
+push constant 7
+call String.new 1
+push constant 76
+call String.appendChar 2
+push constant 101
+call String.appendChar 2
+push constant 118
+call String.appendChar 2
+push constant 101
+call String.appendChar 2
+push constant 108
+call String.appendChar 2
+push constant 58
+call String.appendChar 2
+push constant 32
+call String.appendChar 2
+pop local 10
+push local 10
+call Output.printString 1
+pop temp 0
+push local 10
+call String.dispose 1
+pop temp 0
+push this 3
+call Output.printInt 1
 pop temp 0
 push constant 0
 return
@@ -813,10 +843,10 @@ push pointer 0
 call PTSDLive.applyGravity 1
 pop temp 0
 push pointer 0
-call PTSDLive.drawHealth 1
+call PTSDLive.drawUITopLeft 1
 pop temp 0
 push pointer 0
-call PTSDLive.drawFuel 1
+call PTSDLive.drawUITopRight 1
 pop temp 0
 goto WHILE_EXP0
 label WHILE_END0
@@ -909,7 +939,7 @@ push pointer 0
 call PTSDLive.renderAllTanks 1
 pop temp 0
 push pointer 0
-call PTSDLive.drawFuel 1
+call PTSDLive.drawUITopRight 1
 pop temp 0
 label IF_FALSE0
 push local 0
@@ -933,7 +963,7 @@ push pointer 0
 call PTSDLive.renderAllTanks 1
 pop temp 0
 push pointer 0
-call PTSDLive.drawFuel 1
+call PTSDLive.drawUITopRight 1
 pop temp 0
 label IF_FALSE1
 push local 0
@@ -1010,10 +1040,10 @@ push pointer 0
 call PTSDLive.applyGravity 1
 pop temp 0
 push pointer 0
-call PTSDLive.drawHealth 1
+call PTSDLive.drawUITopLeft 1
 pop temp 0
 push pointer 0
-call PTSDLive.drawFuel 1
+call PTSDLive.drawUITopRight 1
 pop temp 0
 push this 1
 call Tank.getHealth 1
@@ -1083,7 +1113,7 @@ push pointer 0
 call PTSDLive.switchWeapon 1
 pop temp 0
 push pointer 0
-call PTSDLive.drawFuel 1
+call PTSDLive.drawUITopRight 1
 pop temp 0
 label IF_FALSE11
 push local 0
