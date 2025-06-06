@@ -206,7 +206,7 @@ class PTSDLive {
         return true;
     }
 
-    method void enemyTurn() {
+    method void enemyTurn() { // TODO: make smarter AI
         var int i, playerX, playerY, enemyX, enemyY, dx, moveSteps, aimSteps;
         var Tank enemyTank;
         var Projectile projectile;
@@ -233,7 +233,7 @@ class PTSDLive {
                     let moveSteps = moveSteps + 1;
                     do drawGround();
                     do renderAllTanks();
-                    do Sys.wait(25);
+                    do Sys.wait(20);
                 }
                 do enemyTank.refuel();
 
@@ -245,7 +245,7 @@ class PTSDLive {
                         do enemyTank.rotateLeft(groundHeights);
                     }
                     let aimSteps = aimSteps + 1;
-                    do Sys.wait(50);
+                    do Sys.wait(20);
                 }
 
                 // Fire at player
@@ -319,7 +319,7 @@ class PTSDLive {
                     return true;
                 }
             }
-            if ((key = 113) | (key = 81)) { // 'q' / 'Q'
+            if ((key = 140)) { // ESC-key
                 return false;
             }
 

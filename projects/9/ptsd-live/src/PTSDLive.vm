@@ -644,7 +644,7 @@ pop temp 0
 push pointer 0
 call PTSDLive.renderAllTanks 1
 pop temp 0
-push constant 25
+push constant 20
 call Sys.wait 1
 pop temp 0
 goto WHILE_EXP1
@@ -681,7 +681,7 @@ push local 7
 push constant 1
 add
 pop local 7
-push constant 50
+push constant 20
 call Sys.wait 1
 pop temp 0
 goto WHILE_EXP2
@@ -897,12 +897,8 @@ return
 label IF_FALSE10
 label IF_FALSE6
 push local 0
-push constant 113
+push constant 140
 eq
-push local 0
-push constant 81
-eq
-or
 if-goto IF_TRUE11
 goto IF_FALSE11
 label IF_TRUE11

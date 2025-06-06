@@ -66,14 +66,19 @@ class Endscreen {
 		do Output.printString(str);
 		do str.dispose();
 
-		let str = "Q-key             to quit";
+		let str = "Q-key             to switch weapon";
 		do Output.moveCursor(15, 8);
+		do Output.printString(str);
+		do str.dispose();
+
+		let str = "ESC-key           to quit";
+		do Output.moveCursor(16, 8);
 		do Output.printString(str);
 		do str.dispose();
 
 
 		let str = "Press space to begin!";
-		do Output.moveCursor(17, 8);
+		do Output.moveCursor(18, 8);
 		do Output.printString(str);
 		do str.dispose();
 
@@ -83,7 +88,7 @@ class Endscreen {
 			if ((key = 32)) {
 				let wait = false;
 			}
-            if ((key = 113) | (key = 81)) { // 'q' / 'Q'
+            if ((key = 140)) { // ESC-key
                 do Screen.clearScreen();
                 return false;
             }
