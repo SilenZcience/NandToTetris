@@ -973,6 +973,9 @@ eq
 if-goto IF_TRUE7
 goto IF_FALSE7
 label IF_TRUE7
+push constant 150
+call Sys.wait 1
+pop temp 0
 push constant 0
 return
 label IF_FALSE7
@@ -981,6 +984,9 @@ call PTSDLive.allEnemiesDestroyed 1
 if-goto IF_TRUE8
 goto IF_FALSE8
 label IF_TRUE8
+push constant 150
+call Sys.wait 1
+pop temp 0
 push constant 0
 not
 return
@@ -995,6 +1001,9 @@ eq
 if-goto IF_TRUE9
 goto IF_FALSE9
 label IF_TRUE9
+push constant 150
+call Sys.wait 1
+pop temp 0
 push constant 0
 return
 label IF_FALSE9
@@ -1003,6 +1012,9 @@ call PTSDLive.allEnemiesDestroyed 1
 if-goto IF_TRUE10
 goto IF_FALSE10
 label IF_TRUE10
+push constant 150
+call Sys.wait 1
+pop temp 0
 push constant 0
 not
 return

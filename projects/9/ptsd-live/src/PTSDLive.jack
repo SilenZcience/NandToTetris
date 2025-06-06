@@ -341,18 +341,22 @@ class PTSDLive {
                 do drawFuel();
 
                 if (playerTank.getHealth() = 0) {
+                    do Sys.wait(150);
                     return false;
                 }
                 if (allEnemiesDestroyed()) {
+                    do Sys.wait(150);
                     return true;
                 }
 
                 do enemyTurn();
 
                 if (playerTank.getHealth() = 0) {
+                    do Sys.wait(150);
                     return false;
                 }
                 if (allEnemiesDestroyed()) {
+                    do Sys.wait(150);
                     return true;
                 }
             }
