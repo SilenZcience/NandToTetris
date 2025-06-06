@@ -150,6 +150,10 @@ class Tank {
         return health;
     }
 
+    method boolean getDestroyed() {
+        return destroyed;
+    }
+
     method int getFuel() {
         return fuel;
     }
@@ -161,7 +165,7 @@ class Tank {
 
     method void applyDamage(int damage, Array groundHeights) {
         var int location;
-        if (destroyed) {
+        if (destroyed | playerTank) {
             return;
         }
         let health = Math.max(0, health - damage);
@@ -276,7 +280,7 @@ class Tank {
             let i = 0;
             while (i < tankAmount) {
                 let cTank = allTanks[i];
-                if (~(cTank = this)) {
+                if ((~(cTank = this)) & (~cTank.getDestroyed())) {
                     let tankX = cTank.getX();
                     let tankY = cTank.getY();
 

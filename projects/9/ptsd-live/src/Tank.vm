@@ -965,6 +965,11 @@ push argument 0
 pop pointer 0
 push this 4
 return
+function Tank.getDestroyed 0
+push argument 0
+pop pointer 0
+push this 6
+return
 function Tank.getFuel 0
 push argument 0
 pop pointer 0
@@ -981,6 +986,8 @@ function Tank.applyDamage 1
 push argument 0
 pop pointer 0
 push this 6
+push this 7
+or
 if-goto IF_TRUE0
 goto IF_FALSE0
 label IF_TRUE0
@@ -1391,6 +1398,10 @@ push local 13
 push pointer 0
 eq
 not
+push local 13
+call Tank.getDestroyed 1
+not
+and
 if-goto IF_TRUE1
 goto IF_FALSE1
 label IF_TRUE1
