@@ -294,7 +294,7 @@ class PTSDLive {
                 do playerTank.decreasePower(groundHeights);
             }
             if ((key = 32)) { // space bar
-                let projectile = playerTank.fire(groundHeights);
+                let projectile = playerTank.fire(groundHeights, allTanks, tankAmount);
                 do playerTank.refuel();
                 do applyDamage(projectile);
                 do projectile.free();

@@ -249,9 +249,11 @@ class Tank {
         return;
     }
 
-    method Projectile fire(Array groundHeights) {
-        var int pX, pY, idx, sin, cos, pipeX, pipeY;
+    method Projectile fire(Array groundHeights, Array allTanks, int tankAmount) {
+        var int pX, pY, idx, sin, cos, pipeX, pipeY, i;
+        var int tankX, tankY, dx, dy;
         var Projectile projectile;
+        var Tank cTank;
         let idx = (pipeAngle + 100) / 5;
         let sin = sinTable[idx];
         let cos = cosTable[idx];
@@ -269,6 +271,23 @@ class Tank {
             // do draw(groundHeights);
             let pX = projectile.getX();
             let pY = projectile.getY();
+
+            // direct tank hit?
+            let i = 0;
+            while (i < tankAmount) {
+                let cTank = allTanks[i];
+                let tankX = cTank.getX();
+                let tankY = cTank.getY();
+
+                let dx = Math.abs(tankX - pX) - 6;
+                let dy = Math.abs(tankY - pY) - 4;
+                if ((dx < projectile.getRadius()) & (dy < projectile.getRadius())) {
+                    do destroyGround(groundHeights, pX, pY, projectile.getRadius());
+                    do projectile.deactivate();
+                    return projectile;
+                }
+                let i = i + 1;
+            }
 
             // Hit the ground?
             if (pY > groundHeights[Math.max(0, Math.min(511, pX))]) {

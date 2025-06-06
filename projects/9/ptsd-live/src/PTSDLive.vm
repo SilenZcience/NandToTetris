@@ -828,7 +828,9 @@ goto IF_FALSE6
 label IF_TRUE6
 push this 1
 push this 0
-call Tank.fire 2
+push this 2
+push this 4
+call Tank.fire 4
 pop local 1
 push this 1
 call Tank.refuel 1
