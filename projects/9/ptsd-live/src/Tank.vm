@@ -1388,6 +1388,13 @@ pop pointer 1
 push that 0
 pop local 13
 push local 13
+push pointer 0
+eq
+not
+if-goto IF_TRUE1
+goto IF_FALSE1
+label IF_TRUE1
+push local 13
 call Tank.getX 1
 pop local 8
 push local 13
@@ -1416,9 +1423,9 @@ push local 12
 call Projectile.getRadius 1
 lt
 and
-if-goto IF_TRUE1
-goto IF_FALSE1
-label IF_TRUE1
+if-goto IF_TRUE2
+goto IF_FALSE2
+label IF_TRUE2
 push pointer 0
 push argument 1
 push local 0
@@ -1432,6 +1439,7 @@ call Projectile.deactivate 1
 pop temp 0
 push local 12
 return
+label IF_FALSE2
 label IF_FALSE1
 push local 7
 push constant 1
@@ -1450,9 +1458,9 @@ add
 pop pointer 1
 push that 0
 gt
-if-goto IF_TRUE2
-goto IF_FALSE2
-label IF_TRUE2
+if-goto IF_TRUE3
+goto IF_FALSE3
+label IF_TRUE3
 push local 0
 push constant 1
 neg
@@ -1461,9 +1469,9 @@ push local 0
 push constant 512
 lt
 and
-if-goto IF_TRUE3
-goto IF_FALSE3
-label IF_TRUE3
+if-goto IF_TRUE4
+goto IF_FALSE4
+label IF_TRUE4
 push pointer 0
 push argument 1
 push local 0
@@ -1472,16 +1480,16 @@ push local 12
 call Projectile.getRadius 1
 call Tank.destroyGround 5
 pop temp 0
-label IF_FALSE3
+label IF_FALSE4
 push local 12
 call Projectile.deactivate 1
 pop temp 0
-goto IF_END2
-label IF_FALSE2
+goto IF_END3
+label IF_FALSE3
 push constant 10
 call Sys.wait 1
 pop temp 0
-label IF_END2
+label IF_END3
 goto WHILE_EXP0
 label WHILE_END0
 push local 12

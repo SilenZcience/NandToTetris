@@ -276,15 +276,17 @@ class Tank {
             let i = 0;
             while (i < tankAmount) {
                 let cTank = allTanks[i];
-                let tankX = cTank.getX();
-                let tankY = cTank.getY();
+                if (~(cTank = this)) {
+                    let tankX = cTank.getX();
+                    let tankY = cTank.getY();
 
-                let dx = Math.abs(tankX - pX) - 6;
-                let dy = Math.abs(tankY - pY) - 4;
-                if ((dx < projectile.getRadius()) & (dy < projectile.getRadius())) {
-                    do destroyGround(groundHeights, pX, pY, projectile.getRadius());
-                    do projectile.deactivate();
-                    return projectile;
+                    let dx = Math.abs(tankX - pX) - 6;
+                    let dy = Math.abs(tankY - pY) - 4;
+                    if ((dx < projectile.getRadius()) & (dy < projectile.getRadius())) {
+                        do destroyGround(groundHeights, pX, pY, projectile.getRadius());
+                        do projectile.deactivate();
+                        return projectile;
+                    }
                 }
                 let i = i + 1;
             }
