@@ -28,8 +28,8 @@ class PTSDLive {
             let i = i + 1;
         }
 
-        do drawHealth();
-        do drawFuel();
+        do drawUITopLeft();
+        do drawUITopRight();
         return this;
     }
 
@@ -45,7 +45,7 @@ class PTSDLive {
         return;
     }
 
-    method void drawHealth() {
+    method void drawUITopLeft() { // draw health of all tanks
         var int i, x, y, health;
         var Tank cTank;
         var String str;
@@ -82,7 +82,7 @@ class PTSDLive {
         return;
     }
 
-    method void drawFuel() {
+    method void drawUITopRight() { // draw fuel and weapon info and current level
         var int centerX, centerY, radius;
         var int sin, cos, idx, pipeX, pipeY;
         var Array sinTable, cosTable;
@@ -126,6 +126,12 @@ class PTSDLive {
         do Screen.drawCircle(421, 10, 4);
         do Screen.setColor(true);
         do Screen.drawCircle(421, 10, currentWeapon + 1);
+
+        do Output.moveCursor(3, 55);
+        let str = "Level: ";
+        do Output.printString(str);
+        do str.dispose();
+        do Output.printInt(level);
 
         return;
     }
@@ -295,8 +301,8 @@ class PTSDLive {
             let i = i + 1;
             do drawGround();
             do applyGravity();
-            do drawHealth();
-            do drawFuel();
+            do drawUITopLeft();
+            do drawUITopRight();
         }
 
         return;
@@ -331,13 +337,13 @@ class PTSDLive {
                 do playerTank.moveLeft(groundHeights);
                 do drawGround();
                 do renderAllTanks();
-                do drawFuel();
+                do drawUITopRight();
             }
             if ((key = 100) | (key = 68)) { // 'd' / 'D'
                 do playerTank.moveRight(groundHeights);
                 do drawGround();
                 do renderAllTanks();
-                do drawFuel();
+                do drawUITopRight();
             }
             if ((key = 130)) { // left arrow
                 do playerTank.rotateLeft(groundHeights);
@@ -358,8 +364,8 @@ class PTSDLive {
                 do projectile.free();
                 do drawGround();
                 do applyGravity(); // also rerenders all tanks
-                do drawHealth();
-                do drawFuel();
+                do drawUITopLeft();
+                do drawUITopRight();
 
                 if (playerTank.getHealth() = 0) {
                     do Sys.wait(150);
@@ -383,7 +389,7 @@ class PTSDLive {
             }
             if ((key = 113) | (key = 81)) { // 'q' / 'Q'
                 do switchWeapon();
-                do drawFuel();
+                do drawUITopRight();
             }
             if ((key = 140)) { // ESC-key
                 return false;
