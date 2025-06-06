@@ -147,7 +147,7 @@ pop this 1
 push pointer 0
 call Projectile.draw 1
 pop temp 0
-push constant 1
+push constant 2
 call Sys.wait 1
 pop temp 0
 push local 3
@@ -156,6 +156,16 @@ add
 pop local 3
 goto WHILE_EXP0
 label WHILE_END0
+push constant 0
+call Screen.setColor 1
+pop temp 0
+push pointer 0
+call Projectile.draw 1
+pop temp 0
+push constant 0
+not
+call Screen.setColor 1
+pop temp 0
 push constant 0
 return
 function Projectile.draw 1
