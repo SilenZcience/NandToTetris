@@ -46,6 +46,7 @@ class PTSDLive {
     method void drawHealth() {
         var int i, x, y, health;
         var Tank cTank;
+        var String str;
 
         do Screen.setColor(false);
         do Screen.drawRectangle(0, 0, 145, 12 * tankAmount);
@@ -60,11 +61,17 @@ class PTSDLive {
 
             do Output.moveCursor(i, 4);
             if (i = 0) {
-                do Output.printString("Player HP: ");
+                let str = "Player HP: ";
+                do Output.printString(str);
+                do str.dispose();
             } else {
-                do Output.printString("Enemy");
+                let str = "Enemy";
+                do Output.printString(str);
+                do str.dispose();
                 do Output.printInt(i);
-                do Output.printString(" HP: ");
+                let str = " HP: ";
+                do Output.printString(str);
+                do str.dispose();
             }
             do Output.printInt(cTank.getHealth());
 
@@ -77,6 +84,7 @@ class PTSDLive {
         var int centerX, centerY, radius;
         var int sin, cos, idx, pipeX, pipeY;
         var Array sinTable, cosTable;
+        var String str;
 
         do Screen.setColor(false);
         do Screen.drawRectangle(425, 0, 480, 60);
@@ -98,7 +106,9 @@ class PTSDLive {
         do Screen.setColor(true);
 
         do Output.moveCursor(1, 55);
-        do Output.printString("FUEL");
+        let str = "FUEL";
+        do Output.printString(str);
+        do str.dispose();
 
         let idx = 2 + ((playerTank.getFuel() * 36) / 100);
         let sin = sinTable[idx];
@@ -146,8 +156,7 @@ class PTSDLive {
 
             if ((dx < radius) & (dy < radius)) {
                 // Square distance check yields too large values ...
-                do cTank.applyDamage(520 - (2 * radius), groundHeights); // TODO: fix damage
-                // do Output.printString("Tank hit");
+                do cTank.applyDamage(52 - (2 * radius), groundHeights); // TODO: fix damage
             }
 
             let i = i + 1;
@@ -197,6 +206,63 @@ class PTSDLive {
         return true;
     }
 
+    method void enemyTurn() {
+        var int i, playerX, playerY, enemyX, enemyY, dx, moveSteps, aimSteps;
+        var Tank enemyTank;
+        var Projectile projectile;
+
+        let playerX = playerTank.getX();
+        let playerY = playerTank.getY();
+
+        let i = 1; // Start from 1, since 0 is the player tank
+        while (i < tankAmount) {
+            let enemyTank = allTanks[i];
+
+            if (enemyTank.getHealth() > 0) {
+                let enemyX = enemyTank.getX();
+                let enemyY = enemyTank.getY();
+
+                // Move enemy tank towards player
+                let moveSteps = 0;
+                while ((moveSteps < 100) & (Math.abs(enemyTank.getX() - playerX) > 50)) {
+                    if (enemyX < playerX) {
+                        do enemyTank.moveRight(groundHeights);
+                    } else {
+                        do enemyTank.moveLeft(groundHeights);
+                    }
+                    let moveSteps = moveSteps + 1;
+                    do drawGround();
+                    do renderAllTanks();
+                    do Sys.wait(25);
+                }
+                do enemyTank.refuel();
+
+                let aimSteps = 0;
+                while (aimSteps < 10) {
+                    if (enemyX < playerX) {
+                        do enemyTank.rotateRight(groundHeights);
+                    } else {
+                        do enemyTank.rotateLeft(groundHeights);
+                    }
+                    let aimSteps = aimSteps + 1;
+                    do Sys.wait(50);
+                }
+
+                // Fire at player
+                let projectile = enemyTank.fire(groundHeights);
+                do applyDamage(projectile);
+                do projectile.free();
+            }
+            let i = i + 1;
+            do drawGround();
+            do applyGravity();
+            do drawHealth();
+            do drawFuel();
+        }
+
+        return;
+    }
+
     method boolean run() {
         var char key;
         var Projectile projectile;
@@ -233,11 +299,9 @@ class PTSDLive {
                 do applyDamage(projectile);
                 do projectile.free();
                 do drawGround();
-                do applyGravity();
+                do applyGravity(); // also rerenders all tanks
                 do drawHealth();
                 do drawFuel();
-
-                // TODO: turn based system and enemies ...
 
                 if (playerTank.getHealth() = 0) {
                     return false;
@@ -246,6 +310,14 @@ class PTSDLive {
                     return true;
                 }
 
+                do enemyTurn();
+
+                if (playerTank.getHealth() = 0) {
+                    return false;
+                }
+                if (allEnemiesDestroyed()) {
+                    return true;
+                }
             }
             if ((key = 113) | (key = 81)) { // 'q' / 'Q'
                 return false;

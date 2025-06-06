@@ -455,6 +455,9 @@ pop temp 0
 push local 2
 call Output.printString 1
 pop temp 0
+push local 2
+call String.dispose 1
+pop temp 0
 push argument 1
 call Levels.tankAmount 1
 push constant 0
@@ -480,7 +483,12 @@ push constant 108
 call String.appendChar 2
 push constant 32
 call String.appendChar 2
+pop local 2
+push local 2
 call Output.printString 1
+pop temp 0
+push local 2
+call String.dispose 1
 pop temp 0
 push argument 1
 call Output.printInt 1
@@ -489,12 +497,14 @@ push constant 1
 call String.new 1
 push constant 41
 call String.appendChar 2
+pop local 2
+push local 2
 call Output.printString 1
 pop temp 0
-label IF_FALSE4
 push local 2
 call String.dispose 1
 pop temp 0
+label IF_FALSE4
 push constant 38
 call String.new 1
 push constant 87

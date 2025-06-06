@@ -90,7 +90,7 @@ goto WHILE_EXP0
 label WHILE_END0
 push constant 0
 return
-function PTSDLive.drawHealth 5
+function PTSDLive.drawHealth 6
 push argument 0
 pop pointer 0
 push constant 0
@@ -165,7 +165,12 @@ push constant 58
 call String.appendChar 2
 push constant 32
 call String.appendChar 2
+pop local 5
+push local 5
 call Output.printString 1
+pop temp 0
+push local 5
+call String.dispose 1
 pop temp 0
 goto IF_END0
 label IF_FALSE0
@@ -181,7 +186,12 @@ push constant 109
 call String.appendChar 2
 push constant 121
 call String.appendChar 2
+pop local 5
+push local 5
 call Output.printString 1
+pop temp 0
+push local 5
+call String.dispose 1
 pop temp 0
 push local 0
 call Output.printInt 1
@@ -198,7 +208,12 @@ push constant 58
 call String.appendChar 2
 push constant 32
 call String.appendChar 2
+pop local 5
+push local 5
 call Output.printString 1
+pop temp 0
+push local 5
+call String.dispose 1
 pop temp 0
 label IF_END0
 push local 4
@@ -213,7 +228,7 @@ goto WHILE_EXP0
 label WHILE_END0
 push constant 0
 return
-function PTSDLive.drawFuel 10
+function PTSDLive.drawFuel 11
 push argument 0
 pop pointer 0
 push constant 0
@@ -297,7 +312,12 @@ push constant 69
 call String.appendChar 2
 push constant 76
 call String.appendChar 2
+pop local 10
+push local 10
 call Output.printString 1
+pop temp 0
+push local 10
+call String.dispose 1
 pop temp 0
 push constant 2
 push this 1
@@ -409,7 +429,7 @@ if-goto IF_TRUE0
 goto IF_FALSE0
 label IF_TRUE0
 push local 8
-push constant 520
+push constant 52
 push constant 2
 push local 3
 call Math.multiply 2
@@ -544,6 +564,159 @@ goto WHILE_EXP0
 label WHILE_END0
 push constant 0
 not
+return
+function PTSDLive.enemyTurn 10
+push argument 0
+pop pointer 0
+push this 1
+call Tank.getX 1
+pop local 1
+push this 1
+call Tank.getY 1
+pop local 2
+push constant 1
+pop local 0
+label WHILE_EXP0
+push local 0
+push this 4
+lt
+not
+if-goto WHILE_END0
+push local 0
+push this 2
+add
+pop pointer 1
+push that 0
+pop local 8
+push local 8
+call Tank.getHealth 1
+push constant 0
+gt
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push local 8
+call Tank.getX 1
+pop local 3
+push local 8
+call Tank.getY 1
+pop local 4
+push constant 0
+pop local 6
+label WHILE_EXP1
+push local 6
+push constant 100
+lt
+push local 8
+call Tank.getX 1
+push local 1
+sub
+call Math.abs 1
+push constant 50
+gt
+and
+not
+if-goto WHILE_END1
+push local 3
+push local 1
+lt
+if-goto IF_TRUE1
+goto IF_FALSE1
+label IF_TRUE1
+push local 8
+push this 0
+call Tank.moveRight 2
+pop temp 0
+goto IF_END1
+label IF_FALSE1
+push local 8
+push this 0
+call Tank.moveLeft 2
+pop temp 0
+label IF_END1
+push local 6
+push constant 1
+add
+pop local 6
+push pointer 0
+call PTSDLive.drawGround 1
+pop temp 0
+push pointer 0
+call PTSDLive.renderAllTanks 1
+pop temp 0
+push constant 25
+call Sys.wait 1
+pop temp 0
+goto WHILE_EXP1
+label WHILE_END1
+push local 8
+call Tank.refuel 1
+pop temp 0
+push constant 0
+pop local 7
+label WHILE_EXP2
+push local 7
+push constant 10
+lt
+not
+if-goto WHILE_END2
+push local 3
+push local 1
+lt
+if-goto IF_TRUE2
+goto IF_FALSE2
+label IF_TRUE2
+push local 8
+push this 0
+call Tank.rotateRight 2
+pop temp 0
+goto IF_END2
+label IF_FALSE2
+push local 8
+push this 0
+call Tank.rotateLeft 2
+pop temp 0
+label IF_END2
+push local 7
+push constant 1
+add
+pop local 7
+push constant 50
+call Sys.wait 1
+pop temp 0
+goto WHILE_EXP2
+label WHILE_END2
+push local 8
+push this 0
+call Tank.fire 2
+pop local 9
+push pointer 0
+push local 9
+call PTSDLive.applyDamage 2
+pop temp 0
+push local 9
+call Projectile.free 1
+pop temp 0
+label IF_FALSE0
+push local 0
+push constant 1
+add
+pop local 0
+push pointer 0
+call PTSDLive.drawGround 1
+pop temp 0
+push pointer 0
+call PTSDLive.applyGravity 1
+pop temp 0
+push pointer 0
+call PTSDLive.drawHealth 1
+pop temp 0
+push pointer 0
+call PTSDLive.drawFuel 1
+pop temp 0
+goto WHILE_EXP0
+label WHILE_END0
+push constant 0
 return
 function PTSDLive.run 2
 push argument 0
@@ -698,6 +871,28 @@ push constant 0
 not
 return
 label IF_FALSE8
+push pointer 0
+call PTSDLive.enemyTurn 1
+pop temp 0
+push this 1
+call Tank.getHealth 1
+push constant 0
+eq
+if-goto IF_TRUE9
+goto IF_FALSE9
+label IF_TRUE9
+push constant 0
+return
+label IF_FALSE9
+push pointer 0
+call PTSDLive.allEnemiesDestroyed 1
+if-goto IF_TRUE10
+goto IF_FALSE10
+label IF_TRUE10
+push constant 0
+not
+return
+label IF_FALSE10
 label IF_FALSE6
 push local 0
 push constant 113
@@ -706,12 +901,12 @@ push local 0
 push constant 81
 eq
 or
-if-goto IF_TRUE9
-goto IF_FALSE9
-label IF_TRUE9
+if-goto IF_TRUE11
+goto IF_FALSE11
+label IF_TRUE11
 push constant 0
 return
-label IF_FALSE9
+label IF_FALSE11
 push constant 50
 call Sys.wait 1
 pop temp 0
