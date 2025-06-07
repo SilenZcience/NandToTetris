@@ -285,10 +285,13 @@ class PTSDLive {
                 }
 
 
+                // here the enemy tank could still adjust their position by moving left or right
+                // to perfectly hit the player tank, since the fuel is still not depleted.
+                // This would be a good AI, but it would also make the game too hard.
+                // aiOffset could be used to determine the perfect distance to the player tank.
+                // y-diff would not be accounted for tho.
 
-
-
-                if (dx > 260) {
+                if ((dx > 260) & (enemyTank.getPipeLen() < 17)) {
                     do enemyTank.increasePower(groundHeights);
                 }
 

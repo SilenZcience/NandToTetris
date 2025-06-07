@@ -806,6 +806,11 @@ label WHILE_END3
 push local 1
 push constant 260
 gt
+push local 10
+call Tank.getPipeLen 1
+push constant 17
+lt
+and
 if-goto IF_TRUE5
 goto IF_FALSE5
 label IF_TRUE5

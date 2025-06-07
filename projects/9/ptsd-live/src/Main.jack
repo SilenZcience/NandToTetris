@@ -6,8 +6,6 @@ class Main {
         var int level;
         var String str;
 
-        do LCGRandom.setSeed(1283); // Initialize random seed
-
         let running = Startscreen.display();
         // TODO: highscore?
         let level = 1;

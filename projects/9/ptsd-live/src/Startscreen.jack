@@ -1,7 +1,7 @@
 class Startscreen {
     function boolean display() {
 		var boolean wait;
-		var int key;
+		var int key, counter;
 		var String str;
 
 		let str = "PTSD Live  aka Der Schulweg meines Grossvaters:";
@@ -45,6 +45,7 @@ class Startscreen {
 		do Output.printString(str);
 		do str.dispose();
 
+        let counter = 0;
         let wait = true;
 		while (wait) {
 			let key = Keyboard.keyPressed();
@@ -55,8 +56,10 @@ class Startscreen {
                 do Screen.clearScreen();
                 return false;
             }
+            let counter = counter + 1;
 		}
 
+        do LCGRandom.setSeed(1283 + counter); // Initialize random seed
         do Screen.clearScreen();
 
         while (Keyboard.keyPressed() = 32) {
