@@ -4,7 +4,7 @@ class Startscreen {
 		var int key, counter;
 		var String str;
 
-		let str = "PTSD Live  aka Der Schulweg meines Grossvaters:";
+		let str = "PTSD Live oder Der Schulweg meines Grossvaters:";
 		do Output.moveCursor(3, 8);
 		do Output.printString(str);
 		do str.dispose();

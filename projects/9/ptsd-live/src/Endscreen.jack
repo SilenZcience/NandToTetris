@@ -6,19 +6,19 @@ class Endscreen {
 
         do Screen.clearScreen();
 
-		let str = "PTSD Live  aka Der Schulweg meines Grossvaters:";
+		let str = "PTSD Live oder Der Schulweg meines Grossvaters:";
 		do Output.moveCursor(3, 8);
 		do Output.printString(str);
 		do str.dispose();
 
         if (gameWon) {
             if (Levels.tankAmount(level) = 0) {
-                let str = "You won the war! Congratulations!";
+                let str = "Congrats! You got to school in time for a surpise exam!";
             } else {
-                let str = "You won the battle but the war is not over!";
+                let str = "Nice! You are one step closer to school!";
             }
         } else {
-            let str = "You got destroyed!";
+            let str = "You got destroyed! *Dein Lehrer verzeichnet Fehlstunden*";
         }
 		do Output.moveCursor(5, 8);
 		do Output.printString(str);

@@ -64,7 +64,7 @@ class PTSDLive {
         var String str;
 
         do Screen.setColor(false);
-        do Screen.drawRectangle(0, 0, 145, 12 * tankAmount);
+        do Screen.drawRectangle(0, 0, 155, 12 * tankAmount);
         do Screen.setColor(true);
 
         let i = 0;
@@ -76,11 +76,11 @@ class PTSDLive {
 
             do Output.moveCursor(i, 4);
             if (i = 0) {
-                let str = "Player HP: ";
+                let str = "Grandpa HP: ";
                 do Output.printString(str);
                 do str.dispose();
             } else {
-                let str = "Enemy";
+                let str = "Enemy ";
                 do Output.printString(str);
                 do str.dispose();
                 do Output.printInt(i);
@@ -333,6 +333,12 @@ class PTSDLive {
             do applyGravity();
             do drawUITopLeft();
             do drawUITopRight();
+            if (playerTank.getHealth() = 0) {
+                return;
+            }
+            if (allEnemiesDestroyed()) {
+                return;
+            }
         }
 
         return;

@@ -21,13 +21,13 @@ push constant 101
 call String.appendChar 2
 push constant 32
 call String.appendChar 2
-push constant 32
+push constant 111
 call String.appendChar 2
-push constant 97
+push constant 100
 call String.appendChar 2
-push constant 107
+push constant 101
 call String.appendChar 2
-push constant 97
+push constant 114
 call String.appendChar 2
 push constant 32
 call String.appendChar 2
