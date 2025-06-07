@@ -1056,7 +1056,7 @@ label IF_FALSE6
 push constant 45
 return
 function Tank.new 0
-push constant 8
+push constant 9
 call Memory.alloc 1
 pop pointer 0
 push argument 0
@@ -1075,6 +1075,8 @@ push constant 100
 pop this 5
 push constant 0
 pop this 6
+push constant 0
+pop this 8
 push pointer 0
 return
 function Tank.setX 0
@@ -1110,6 +1112,11 @@ function Tank.getDestroyed 0
 push argument 0
 pop pointer 0
 push this 6
+return
+function Tank.getDirectHit 0
+push argument 0
+pop pointer 0
+push this 8
 return
 function Tank.getFuel 0
 push argument 0
@@ -1449,6 +1456,8 @@ return
 function Tank.fire 14
 push argument 0
 pop pointer 0
+push constant 0
+pop this 8
 push this 2
 push constant 100
 add
@@ -1590,6 +1599,9 @@ and
 if-goto IF_TRUE2
 goto IF_FALSE2
 label IF_TRUE2
+push constant 0
+not
+pop this 8
 push pointer 0
 push argument 2
 push local 0

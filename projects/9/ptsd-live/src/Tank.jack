@@ -3,7 +3,7 @@ class Tank {
     field int pipeAngle, pipeLen; // degrees, 0 = up
     field int health, fuel;
     field boolean destroyed;
-    field boolean playerTank;
+    field boolean playerTank, directHit;
 
     static Array sinTable, cosTable;
 
@@ -178,6 +178,7 @@ class Tank {
         let health = 100;
         let fuel = 100;
         let destroyed = false;
+        let directHit = false;
         return this;
     }
 
@@ -205,6 +206,10 @@ class Tank {
 
     method boolean getDestroyed() {
         return destroyed;
+    }
+
+    method boolean getDirectHit() {
+        return directHit;
     }
 
     method int getFuel() {
@@ -319,6 +324,9 @@ class Tank {
         var int tankX, tankY, dx, dy;
         var Projectile projectile;
         var Tank cTank;
+
+        let directHit = false;
+
         let idx = (pipeAngle + 100) / 5;
         let sin = sinTable[idx];
         let cos = cosTable[idx];
@@ -348,6 +356,7 @@ class Tank {
                     let dx = Math.abs(tankX - pX) - 6;
                     let dy = Math.abs(tankY - pY) - 4;
                     if ((dx < (projectile.getWeaponType() + 1)) & (dy < (projectile.getWeaponType() + 1))) {
+                        let directHit = true;
                         do destroyGround(groundHeights, pX, pY, projectile.getRadius());
                         do projectile.deactivate();
                         return projectile;

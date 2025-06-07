@@ -7,13 +7,18 @@ class PTSDLive {
     field int tankAmount;
     field int currentWeapon; // 0 = sniper, 1 = medium, 2 = big
 
-    constructor PTSDLive new(int level_) {
+    field int score, shotsTaken;
+
+    constructor PTSDLive new(int level_, int score_) {
         var int i;
         var Tank cTank;
 
         let level = level_;
         let tankAmount = Levels.tankAmount(level);
         let currentWeapon = 1;
+
+        let score = score_;
+        let shotsTaken = 0;
 
         let groundHeights = Array.new(512);
         let allTanks = Array.new(tankAmount);
@@ -31,6 +36,14 @@ class PTSDLive {
         do drawUITopLeft();
         do drawUITopRight();
         return this;
+    }
+
+    method int getScore() {
+        return score;
+    }
+
+    method int getBonus() {
+        return Math.max(0, (4 * (tankAmount - 1)) - shotsTaken) * 15;
     }
 
     method void drawGround() {
@@ -127,17 +140,22 @@ class PTSDLive {
         do Screen.setColor(true);
         do Screen.drawCircle(421, 10, currentWeapon + 1);
 
-        do Output.moveCursor(3, 54);
+        do Output.moveCursor(3, 52);
         let str = "Level: ";
         do Output.printString(str);
         do str.dispose();
         do Output.printInt(level);
+        do Output.moveCursor(4, 52);
+        let str = "Score: ";
+        do Output.printString(str);
+        do str.dispose();
+        do Output.printInt(score);
 
         return;
     }
 
-    method void applyDamage(Projectile projectile) {
-        var int i, pX, pY, radius, dx, dy, tankX, tankY, damage;
+    method void applyDamage(Projectile projectile, boolean playerTurn) {
+        var int i, pX, pY, radius, dx, dy, tankX, tankY, tankHealth, damage;
         var Tank cTank;
         let pX = projectile.getX();
         let pY = projectile.getY();
@@ -179,8 +197,17 @@ class PTSDLive {
                 if (projectile.getWeaponType() = 2) {
                     let damage = 20;
                 }
+                let tankHealth = cTank.getHealth();
                 // Square distance check yields too large values ...
                 do cTank.applyDamage(damage, groundHeights);
+                if (playerTurn & (i > 0)) {
+                    if (playerTank.getDirectHit()) {
+                        let score = score + (((tankHealth - cTank.getHealth()) * 13) / 10);
+                    }
+                    else {
+                        let score = score + (tankHealth - cTank.getHealth());
+                    }
+                }
             }
 
             let i = i + 1;
@@ -298,7 +325,7 @@ class PTSDLive {
                 do enemyTank.refuel();
                 // Fire at player
                 let projectile = enemyTank.fire(1, groundHeights, allTanks, tankAmount);
-                do applyDamage(projectile);
+                do applyDamage(projectile, false);
                 do projectile.free();
             }
             let i = i + 1;
@@ -361,10 +388,13 @@ class PTSDLive {
                 do playerTank.decreasePower(groundHeights);
             }
             if ((key = 32)) { // space bar
-                let projectile = playerTank.fire(currentWeapon, groundHeights, allTanks, tankAmount);
+                let shotsTaken = shotsTaken + 1;
                 do playerTank.refuel();
-                do applyDamage(projectile);
+
+                let projectile = playerTank.fire(currentWeapon, groundHeights, allTanks, tankAmount);
+                do applyDamage(projectile, true);
                 do projectile.free();
+
                 do drawGround();
                 do applyGravity(); // also rerenders all tanks
                 do drawUITopLeft();
@@ -397,12 +427,11 @@ class PTSDLive {
             if ((key = 140)) { // ESC-key
                 return false;
             }
+            // if (key = 49) { // '1' - key to cheat - will skip the current level instantly
+            //     return true;
+            // }
 
             do Sys.wait(50); // Small delay for animation
-
-
-
-            // do Output.printChar(key);
         }
         return true;
     }

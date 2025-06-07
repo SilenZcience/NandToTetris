@@ -3,21 +3,27 @@ class Main {
 	function void main() {
         var boolean running, gameWon;
 		var PTSDLive game;
-        var int level;
+        var int level, score, highscore;
         var String str;
+
+        let score = 0;
+        let highscore = 0;
 
         let running = Startscreen.display();
         // TODO: highscore?
         let level = 1;
         while (running) {
-            let game = PTSDLive.new(level);
+            let game = PTSDLive.new(level, score);
             let gameWon = game.run();
+            let score = game.getScore() + game.getBonus();
+            let highscore = Math.max(score, highscore);
             let level = level + 1;
-            if (~gameWon) {
+            if (~gameWon) { // game lost
                 let level = 1;
             }
-            let running = Endscreen.display(gameWon, level);
-            if (Levels.tankAmount(level) = 0) {
+            let running = Endscreen.display(gameWon, level, score, highscore);
+            if ((Levels.tankAmount(level) = 0) | ~gameWon) { // game (all levels) won
+                let score = 0;
                 let level = 1;
             }
             do game.free();

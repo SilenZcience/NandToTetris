@@ -1,4 +1,8 @@
-function Main.main 5
+function Main.main 7
+push constant 0
+pop local 4
+push constant 0
+pop local 5
 call Startscreen.display 0
 pop local 0
 push constant 1
@@ -8,11 +12,22 @@ push local 0
 not
 if-goto WHILE_END0
 push local 3
-call PTSDLive.new 1
+push local 4
+call PTSDLive.new 2
 pop local 2
 push local 2
 call PTSDLive.run 1
 pop local 1
+push local 2
+call PTSDLive.getScore 1
+push local 2
+call PTSDLive.getBonus 1
+add
+pop local 4
+push local 4
+push local 5
+call Math.max 2
+pop local 5
 push local 3
 push constant 1
 add
@@ -27,15 +42,22 @@ pop local 3
 label IF_FALSE0
 push local 1
 push local 3
-call Endscreen.display 2
+push local 4
+push local 5
+call Endscreen.display 4
 pop local 0
 push local 3
 call Levels.tankAmount 1
 push constant 0
 eq
+push local 1
+not
+or
 if-goto IF_TRUE1
 goto IF_FALSE1
 label IF_TRUE1
+push constant 0
+pop local 4
 push constant 1
 pop local 3
 label IF_FALSE1
@@ -62,15 +84,15 @@ push constant 69
 call String.appendChar 2
 push constant 33
 call String.appendChar 2
-pop local 4
+pop local 6
 push constant 10
 push constant 30
 call Output.moveCursor 2
 pop temp 0
-push local 4
+push local 6
 call Output.printString 1
 pop temp 0
-push local 4
+push local 6
 call String.dispose 1
 pop temp 0
 push constant 0
