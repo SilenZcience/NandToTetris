@@ -42,7 +42,7 @@ KTYPES_MAP = {k.value: k for k in KTypes}
 
 
 PATTERN_BLOCK_COMMENT = re.compile(r'/\*.*?\*/', re.DOTALL)
-PATTERN_KEYWORD       = re.compile(r'\|'.join([t.value for t in KTypes]))
+PATTERN_KEYWORD       = re.compile(r'|'.join([t.value for t in KTypes]))
 PATTERN_SYMBOL        = re.compile(r'[\{\}\(\)\[\]\.\,\;\+\-\*\/\&\|\<\>\=\~]')
 PATTERN_INTEGER       = re.compile(r'\d+')
 PATTERN_STRING        = re.compile(r'\"[^\"\r\n]*?\"')
@@ -67,6 +67,7 @@ class JackTokenizer:
         self.token: tuple = ('', 0) # (token, line number)
 
         self._read_tokens()
+        self.advance()  # Initialize the first token
 
     def _read_tokens(self) -> None:
         def replacer(match):
@@ -89,6 +90,8 @@ class JackTokenizer:
             while match.start() >= line_starts[line_num]:
                 line_num += 1
             self.tokens.append((match.group(0), line_num))
+
+        self.tokens.append(None)
 
     def hasMoreTokens(self) -> bool:
         """

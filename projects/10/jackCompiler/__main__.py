@@ -38,8 +38,8 @@ def acc_jack_files(arg_path: str) -> set:
                     jack_files.add(
                         (
                             file_path,
-                            os.path.join(arg_path, os.path.basename(os.path.normpath(arg_path)) + '..xml'),
-                            os.path.join(arg_path, os.path.basename(os.path.normpath(arg_path)) + 'T..xml'),
+                            os.path.splitext(file_path)[0] + '..xml',
+                            os.path.splitext(file_path)[0] + 'T..xml',
                         )
                     )
                     print(f"{MSG_INFO} File '{file_path}' collected.")
