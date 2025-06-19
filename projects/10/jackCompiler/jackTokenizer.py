@@ -70,6 +70,12 @@ class JackTokenizer:
         self.advance()  # Initialize the first token
 
     def _read_tokens(self) -> None:
+        """
+        read tokens from the input file and store them in self.tokens.
+        It removes comments and splits the code into tokens.
+        It also keeps track of the line numbers for each token by
+        replacing multilinecomments with newlines.
+        """
         def replacer(match):
             comment = match.group(0)
             return '\n' * comment.count('\n')
@@ -91,7 +97,7 @@ class JackTokenizer:
                 line_num += 1
             self.tokens.append((match.group(0), line_num))
 
-        self.tokens.append(None)
+        self.tokens.append(None) # one last token to indicate EOF and make the compilationEngine easier
 
     def hasMoreTokens(self) -> bool:
         """

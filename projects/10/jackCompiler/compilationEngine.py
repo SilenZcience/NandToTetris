@@ -2,7 +2,7 @@
 from jackCompiler.jackTokenizer import JackTokenizer, TTypes, KTypes
 
 
-COMPILE_OP_MAP = {
+COMPILE_OP_MAP = { # xml - conversion
     '&': '&amp;',
     '<': '&lt;',
     '>': '&gt;',
@@ -23,6 +23,7 @@ class CompilationEngine:
     def raiseException(self, message: str) -> None:
         """
         Raises a SyntaxError with the given message.
+        Closes file handles before raising the exception.
         """
         self.f_out_file.close()
         self.f_token_file.close()
@@ -75,6 +76,9 @@ class CompilationEngine:
         self.tokenizer.advance()
 
     def compileClass(self) -> None:
+        """
+        class: 'class' className '{' classVarDec* subroutineDec* '}'
+        """
         self.writeFile('<class>')
         self.indent += 2
         self.f_token_file.write('<tokens>\n')
@@ -110,6 +114,9 @@ class CompilationEngine:
         self.f_token_file.close()
 
     def compileClassVarDec(self) -> None:
+        """
+        classVarDec: ('static' | 'field') type varName (',' varName)* ';'
+        """
         self.writeFile('<classVarDec>')
         self.indent += 2
         self.writeKeyword(self.tokenizer.keyWord())
@@ -130,6 +137,9 @@ class CompilationEngine:
         self.writeFile('</classVarDec>')
 
     def compileType(self) -> None:
+        """
+        type: 'int' | 'char' | 'boolean' | className
+        """
         if self.tokenizer.tokenType() == TTypes.T_KEYWORD and self.tokenizer.keyWord() in (KTypes.K_INT, KTypes.K_CHAR, KTypes.K_BOOLEAN):
             self.writeKeyword(self.tokenizer.keyWord())
         elif self.tokenizer.tokenType() == TTypes.T_IDENTIFIER:
@@ -138,6 +148,9 @@ class CompilationEngine:
             self.raiseException(f"Expected type (int, char, boolean, or identifier), found '{self.tokenizer.token[0]}' at line {self.tokenizer.token[1]}.")
 
     def compileSubroutineDec(self) -> None:
+        """
+        subroutineDec: ('constructor' | 'function' | 'method') (type | 'void') subroutineName '(' parameterList ')' subroutineBody
+        """
         self.writeFile('<subroutineDec>')
         self.indent += 2
         self.writeKeyword(self.tokenizer.keyWord())
@@ -165,6 +178,9 @@ class CompilationEngine:
         self.writeFile('</subroutineDec>')
 
     def compileParameterList(self) -> None:
+        """
+        parameterList: (type varName (',' type varName)*)?
+        """
         self.writeFile('<parameterList>')
         self.indent += 2
 
@@ -181,6 +197,9 @@ class CompilationEngine:
         self.writeFile('</parameterList>')
 
     def compileSubroutineBody(self) -> None:
+        """
+        subroutineBody: '{' varDec* statements '}'
+        """
         self.writeFile('<subroutineBody>')
         self.indent += 2
 
@@ -201,6 +220,9 @@ class CompilationEngine:
         self.writeFile('</subroutineBody>')
 
     def compileVarDec(self) -> None:
+        """
+        varDec: 'var' type varName (',' varName)* ';'s
+        """
         self.writeFile('<varDec>')
         self.indent += 2
         self.writeKeyword(self.tokenizer.keyWord())
@@ -221,15 +243,27 @@ class CompilationEngine:
         self.writeFile('</varDec>')
 
     def compileClassName(self) -> None:
+        """
+        className: identifier
+        """
         self.writeIdentifier(self.tokenizer.identifier())
 
     def compileSubroutineName(self) -> None:
+        """
+        subroutineName: identifier
+        """
         self.writeIdentifier(self.tokenizer.identifier())
 
     def compileVarName(self) -> None:
+        """
+        varName: identifier
+        """
         self.writeIdentifier(self.tokenizer.identifier())
 
     def compileStatements(self) -> None:
+        """
+        statements: statement*
+        """
         self.writeFile('<statements>')
         self.indent += 2
 
@@ -250,6 +284,9 @@ class CompilationEngine:
         self.writeFile('</statements>')
 
     def compileLetStatement(self) -> None:
+        """
+        letStatement: 'let' varName ('[' expression ']')? '=' expression ';'
+        """
         self.writeFile('<letStatement>')
         self.indent += 2
         self.writeKeyword(self.tokenizer.keyWord())
@@ -277,6 +314,9 @@ class CompilationEngine:
         self.writeFile('</letStatement>')
 
     def compileIfStatement(self) -> None:
+        """
+        ifStatement: 'if' '(' expression ')' '{' statements '}' ('else' '{' statements '}')?
+        """
         self.writeFile('<ifStatement>')
         self.indent += 2
         self.writeKeyword(self.tokenizer.keyWord())
@@ -315,6 +355,9 @@ class CompilationEngine:
         self.writeFile('</ifStatement>')
 
     def compileWhileStatement(self) -> None:
+        """
+        whileStatement: 'while' '(' expression ')' '{' statements '}'
+        """
         self.writeFile('<whileStatement>')
         self.indent += 2
         self.writeKeyword(self.tokenizer.keyWord())
@@ -343,6 +386,9 @@ class CompilationEngine:
         self.writeFile('</whileStatement>')
 
     def compileDoStatement(self) -> None:
+        """
+        doStatement: 'do' subroutineCall ';'
+        """
         self.writeFile('<doStatement>')
         self.indent += 2
         self.writeKeyword(self.tokenizer.keyWord())
@@ -358,6 +404,9 @@ class CompilationEngine:
         self.writeFile('</doStatement>')
 
     def compileReturnStatement(self) -> None:
+        """
+        returnStatement: 'return' expression? ';'
+        """
         self.writeFile('<returnStatement>')
         self.indent += 2
         self.writeKeyword(self.tokenizer.keyWord())
@@ -373,6 +422,9 @@ class CompilationEngine:
         self.writeFile('</returnStatement>')
 
     def compileExpression(self) -> None:
+        """
+        expression: term (op term)*
+        """
         self.writeFile('<expression>')
         self.indent += 2
 
@@ -386,6 +438,9 @@ class CompilationEngine:
         self.writeFile('</expression>')
 
     def compileTerm(self) -> None:
+        """
+        term: integerConstant | stringConstant | keywordConstant | varName | varName '[' expression ']' | subroutineCall | '(' expression ')' | unaryOp term
+        """
         self.writeFile('<term>')
         self.indent += 2
 
@@ -421,6 +476,9 @@ class CompilationEngine:
         self.writeFile('</term>')
 
     def compileSubroutineCall(self) -> None:
+        """
+        subroutineCall: subroutineName '(' expressionList ')' | (className | varName) '.' subroutineName '(' expressionList ')'
+        """
         if self.tokenizer.symbol() == '.':
             self.writeSymbol(self.tokenizer.symbol())
             self.compileSubroutineName()
@@ -433,6 +491,9 @@ class CompilationEngine:
         self.writeSymbol(self.tokenizer.symbol())
 
     def compileExpressionList(self) -> None:
+        """
+        expressionList: (expression (',' expression)*)?
+        """
         self.writeFile('<expressionList>')
         self.indent += 2
 
@@ -447,10 +508,19 @@ class CompilationEngine:
         self.writeFile('</expressionList>')
 
     def compileOp(self) -> None:
+        """
+        op: '+' | '-' | '*' | '/' | '&' | '|' | '<' | '>' | '='
+        """
         self.writeSymbol(COMPILE_OP_MAP.get(self.tokenizer.symbol(), self.tokenizer.symbol()))
 
     def compileUnaryOp(self) -> None:
+        """
+        unaryOp: '-' | '~'
+        """
         self.writeSymbol(self.tokenizer.symbol())
 
     def compileKeywordConstant(self) -> None:
+        """
+        keywordConstant: 'true' | 'false' | 'null' | 'this'
+        """
         self.writeKeyword(self.tokenizer.keyWord())
