@@ -8,6 +8,10 @@ MSG_ERROR   = '  \x1b[31mERROR\x1b[0m:'
 MSG_WARNING = '\x1b[33mWARNING\x1b[0m:'
 MSG_INFO    = '   \x1b[32mINFO\x1b[0m:'
 
+NEW_FILE_EXTENSION   = '..xml'
+NEW_FILE_EXTENSION_T = 'T..xml'
+
+
 
 def acc_jack_files(arg_path: str) -> set:
     """
@@ -22,8 +26,8 @@ def acc_jack_files(arg_path: str) -> set:
         jack_files.add(
             (
                 arg_path,
-                os.path.splitext(arg_path)[0] + '..xml',
-                os.path.splitext(arg_path)[0] + 'T..xml',
+                os.path.splitext(arg_path)[0] + NEW_FILE_EXTENSION,
+                os.path.splitext(arg_path)[0] + NEW_FILE_EXTENSION_T,
             )
         )
         print(f"{MSG_INFO} File '{arg_path}' collected.")
@@ -38,8 +42,8 @@ def acc_jack_files(arg_path: str) -> set:
                     jack_files.add(
                         (
                             file_path,
-                            os.path.splitext(file_path)[0] + '..xml',
-                            os.path.splitext(file_path)[0] + 'T..xml',
+                            os.path.splitext(file_path)[0] + NEW_FILE_EXTENSION,
+                            os.path.splitext(file_path)[0] + NEW_FILE_EXTENSION_T,
                         )
                     )
                     print(f"{MSG_INFO} File '{file_path}' collected.")
@@ -54,8 +58,8 @@ def main(args: list) -> int:
     Expects a single argument which can be a .jack file or a directory containing .jack files.
     """
     if '-h' in args or '--help' in args or len(args) != 1:
-        print(f"{MSG_INFO} Usage: python -m jackCompiler [<file.vm> | <directory>]")
-        print(f"{MSG_INFO} Translates .jack files to .xml files.")
+        print(f"{MSG_INFO} Usage: python -m jackCompiler [<file.jack> | <directory>]")
+        print(f"{MSG_INFO} Translates .jack files to {NEW_FILE_EXTENSION} files.")
         return not len(args) == 1
 
     try:
