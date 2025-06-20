@@ -8,8 +8,8 @@ MSG_ERROR   = '  \x1b[31mERROR\x1b[0m:'
 MSG_WARNING = '\x1b[33mWARNING\x1b[0m:'
 MSG_INFO    = '   \x1b[32mINFO\x1b[0m:'
 
-NEW_FILE_EXTENSION   = '..xml'
-NEW_FILE_EXTENSION_T = 'T..xml'
+NEW_FILE_EXTENSION   = '.xml'
+NEW_FILE_EXTENSION_T = 'T.xml'
 
 
 
