@@ -40,19 +40,24 @@ class KTypes(Enum):
 
 KTYPES_MAP = {k.value: k for k in KTypes}
 
-
+PATTERN_LINE_COMMENT  = re.compile(r'//[^\n]*')
 PATTERN_BLOCK_COMMENT = re.compile(r'/\*.*?\*/', re.DOTALL)
+
 PATTERN_KEYWORD       = re.compile(r'|'.join([t.value for t in KTypes]))
 PATTERN_SYMBOL        = re.compile(r'[\{\}\(\)\[\]\.\,\;\+\-\*\/\&\|\<\>\=\~]')
 PATTERN_INTEGER       = re.compile(r'\d+')
 PATTERN_STRING        = re.compile(r'\"[^\"\r\n]*?\"')
 PATTERN_IDENTIFIER    = re.compile(r'[a-zA-Z_]\w*')
-PATTERN_TOKEN         = re.compile(
-    PATTERN_KEYWORD.pattern + r'|' + \
-    PATTERN_SYMBOL.pattern  + r'|' + \
-    PATTERN_INTEGER.pattern + r'|' + \
-    PATTERN_STRING.pattern  + r'|' + \
-    PATTERN_IDENTIFIER.pattern
+
+PATTERN_TOKEN = re.compile(
+    PATTERN_LINE_COMMENT.pattern  + r'|' +
+    PATTERN_BLOCK_COMMENT.pattern + r'|' +
+    PATTERN_KEYWORD.pattern       + r'|' +
+    PATTERN_SYMBOL.pattern        + r'|' +
+    PATTERN_INTEGER.pattern       + r'|' +
+    PATTERN_STRING.pattern        + r'|' +
+    PATTERN_IDENTIFIER.pattern,
+    re.DOTALL # allows '.' to match newlines in block comments, NO OTHER '.' is used in the patterns
 )
 
 
@@ -72,20 +77,20 @@ class JackTokenizer:
     def _read_tokens(self) -> None:
         """
         read tokens from the input file and store them in self.tokens.
-        It removes comments and splits the code into tokens.
-        It also keeps track of the line numbers for each token by
-        replacing multilinecomments with newlines.
+        It also tokenizes comments.
+        It also keeps track of the line numbers for each token.
         """
-        def replacer(match):
-            comment = match.group(0)
-            return '\n' * comment.count('\n')
+        # def replacer(match):
+        #     comment = match.group(0)
+        #     return '\n' * comment.count('\n')
 
         jack_code = ''
         with open(self.in_file, 'r', encoding='utf-8') as f_in:
-            for line in f_in:
-                line = line.split('//')[0].strip()
-                jack_code += line + '\n'
-        jack_code = re.sub(PATTERN_BLOCK_COMMENT, replacer, jack_code)
+            jack_code = f_in.read()
+        #     for line in f_in:
+        #         line = line.split('//')[0].strip()
+        #         jack_code += line + '\n'
+        # jack_code = re.sub(PATTERN_BLOCK_COMMENT, replacer, jack_code)
 
         line_starts = [0]
         for m in re.finditer(r'\n', jack_code):
@@ -113,6 +118,10 @@ class JackTokenizer:
             raise EOFError("No more tokens to read.")
         self.position += 1
         self.token = self.tokens[self.position]
+        # Skip comments
+        if self.token:
+            if PATTERN_LINE_COMMENT.match(self.token[0]) or PATTERN_BLOCK_COMMENT.match(self.token[0]):
+                self.advance()
 
     def tokenType(self) -> TTypes:
         """
