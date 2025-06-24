@@ -43,9 +43,9 @@ KTYPES_MAP = {k.value: k for k in KTypes}
 PATTERN_LINE_COMMENT  = re.compile(r'//[^\n]*')
 PATTERN_BLOCK_COMMENT = re.compile(r'/\*.*?\*/', re.DOTALL)
 
-PATTERN_KEYWORD       = re.compile(r'|'.join([t.value for t in KTypes]))
+PATTERN_KEYWORD       = re.compile(r'\b(' + r'|'.join([t.value for t in KTypes]) + r')\b')
 PATTERN_SYMBOL        = re.compile(r'[\{\}\(\)\[\]\.\,\;\+\-\*\/\&\|\<\>\=\~]')
-PATTERN_INTEGER       = re.compile(r'\d+')
+PATTERN_INTEGER       = re.compile(r'[1-9]\d*|0')
 PATTERN_STRING        = re.compile(r'\"[^\"\r\n]*?\"')
 PATTERN_IDENTIFIER    = re.compile(r'[a-zA-Z_]\w*')
 
