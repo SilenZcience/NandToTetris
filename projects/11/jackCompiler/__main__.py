@@ -8,15 +8,13 @@ MSG_ERROR   = '  \x1b[31mERROR\x1b[0m:'
 MSG_WARNING = '\x1b[33mWARNING\x1b[0m:'
 MSG_INFO    = '   \x1b[32mINFO\x1b[0m:'
 
-NEW_FILE_EXTENSION   = '.xml'
-NEW_FILE_EXTENSION_T = 'T.xml'
-
+NEW_FILE_EXTENSION   = '.vm'
 
 
 def acc_jack_files(arg_path: str) -> set:
     """
     Collects .jack files from a given path, which can be a file or a directory.
-    Returns a set of .jack file paths and their output xml file path (and token-xml path).
+    Returns a set of .jack file paths and their output .vm file path.
     """
     jack_files = set()
 
@@ -27,7 +25,6 @@ def acc_jack_files(arg_path: str) -> set:
             (
                 arg_path,
                 os.path.splitext(arg_path)[0] + NEW_FILE_EXTENSION,
-                os.path.splitext(arg_path)[0] + NEW_FILE_EXTENSION_T,
             )
         )
         print(f"{MSG_INFO} File '{arg_path}' collected.")
@@ -43,7 +40,6 @@ def acc_jack_files(arg_path: str) -> set:
                         (
                             file_path,
                             os.path.splitext(file_path)[0] + NEW_FILE_EXTENSION,
-                            os.path.splitext(file_path)[0] + NEW_FILE_EXTENSION_T,
                         )
                     )
                     print(f"{MSG_INFO} File '{file_path}' collected.")
@@ -71,10 +67,10 @@ def main(args: list) -> int:
         print(f"{MSG_ERROR} No .jack files found/provided.")
         return 3
 
-    for jack_file, out_file, token_file in jack_files:
+    for jack_file, out_file in jack_files:
         print(f"\n{MSG_INFO} Compiling '{jack_file}'")
         try:
-            compilation_engine = CompilationEngine(jack_file, out_file, token_file)
+            compilation_engine = CompilationEngine(jack_file, out_file)
             compilation_engine.compileClass()
             print(f"{MSG_INFO} Successfully compiled '{jack_file}' to '{out_file}'")
         except (FileNotFoundError, SyntaxError, EOFError) as e:
