@@ -80,17 +80,9 @@ class JackTokenizer:
         It also tokenizes comments.
         It also keeps track of the line numbers for each token.
         """
-        # def replacer(match):
-        #     comment = match.group(0)
-        #     return '\n' * comment.count('\n')
-
         jack_code = ''
         with open(self.in_file, 'r', encoding='utf-8') as f_in:
-            jack_code = f_in.read()
-        #     for line in f_in:
-        #         line = line.split('//')[0].strip()
-        #         jack_code += line + '\n'
-        # jack_code = re.sub(PATTERN_BLOCK_COMMENT, replacer, jack_code)
+            jack_code = f_in.read() + '\n'
 
         line_starts = [0]
         for m in re.finditer(r'\n', jack_code):
