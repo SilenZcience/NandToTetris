@@ -71,34 +71,50 @@ python -m jackCompiler [-h | --help] [<file.jack> | <directory>]
 
 ```bash
    INFO: Searching directory '.' for .jack files.
-   INFO: File '.\ArrayTest\Main.jack' collected.
-   INFO: File '.\ExpressionLessSquare\Main.jack' collected.
-   INFO: File '.\ExpressionLessSquare\Square.jack' collected.
-   INFO: File '.\ExpressionLessSquare\SquareGame.jack' collected.
+   INFO: File '.\Average\Main.jack' collected.
+   INFO: File '.\ComplexArrays\Main.jack' collected.
+   INFO: File '.\ConvertToBin\Main.jack' collected.
+   INFO: File '.\Pong\Ball.jack' collected.
+   INFO: File '.\Pong\Bat.jack' collected.
+   INFO: File '.\Pong\Main.jack' collected.
+   INFO: File '.\Pong\PongGame.jack' collected.
+   INFO: File '.\Seven\Main.jack' collected.
    INFO: File '.\Square\Main.jack' collected.
    INFO: File '.\Square\Square.jack' collected.
    INFO: File '.\Square\SquareGame.jack' collected.
 
-   INFO: Compiling '.\Square\Main.jack'
-   INFO: Successfully compiled '.\Square\Main.jack' to '.\Square\Main..xml'
+   INFO: Compiling '.\Average\Main.jack'
+   INFO: Successfully compiled '.\Average\Main.jack' to '.\Average\Main.vm'
 
-   INFO: Compiling '.\ArrayTest\Main.jack'
-   INFO: Successfully compiled '.\ArrayTest\Main.jack' to '.\ArrayTest\Main..xml'
+   INFO: Compiling '.\ConvertToBin\Main.jack'
+   INFO: Successfully compiled '.\ConvertToBin\Main.jack' to '.\ConvertToBin\Main.vm'
 
-   INFO: Compiling '.\ExpressionLessSquare\Square.jack'
-   INFO: Successfully compiled '.\ExpressionLessSquare\Square.jack' to '.\ExpressionLessSquare\Square..xml'
+   INFO: Compiling '.\Pong\Ball.jack'
+   INFO: Successfully compiled '.\Pong\Ball.jack' to '.\Pong\Ball.vm'
 
-   INFO: Compiling '.\ExpressionLessSquare\SquareGame.jack'
-   INFO: Successfully compiled '.\ExpressionLessSquare\SquareGame.jack' to '.\ExpressionLessSquare\SquareGame..xml'
+   INFO: Compiling '.\Pong\PongGame.jack'
+   INFO: Successfully compiled '.\Pong\PongGame.jack' to '.\Pong\PongGame.vm'
 
-   INFO: Compiling '.\ExpressionLessSquare\Main.jack'
-   INFO: Successfully compiled '.\ExpressionLessSquare\Main.jack' to '.\ExpressionLessSquare\Main..xml'
+   INFO: Compiling '.\Pong\Main.jack'
+   INFO: Successfully compiled '.\Pong\Main.jack' to '.\Pong\Main.vm'
 
    INFO: Compiling '.\Square\Square.jack'
-   INFO: Successfully compiled '.\Square\Square.jack' to '.\Square\Square..xml'
+   INFO: Successfully compiled '.\Square\Square.jack' to '.\Square\Square.vm'
 
    INFO: Compiling '.\Square\SquareGame.jack'
-   INFO: Successfully compiled '.\Square\SquareGame.jack' to '.\Square\SquareGame..xml'
+   INFO: Successfully compiled '.\Square\SquareGame.jack' to '.\Square\SquareGame.vm'
+
+   INFO: Compiling '.\ComplexArrays\Main.jack'
+   INFO: Successfully compiled '.\ComplexArrays\Main.jack' to '.\ComplexArrays\Main.vm'
+
+   INFO: Compiling '.\Square\Main.jack'
+   INFO: Successfully compiled '.\Square\Main.jack' to '.\Square\Main.vm'
+
+   INFO: Compiling '.\Seven\Main.jack'
+   INFO: Successfully compiled '.\Seven\Main.jack' to '.\Seven\Main.vm'
+
+   INFO: Compiling '.\Pong\Bat.jack'
+   INFO: Successfully compiled '.\Pong\Bat.jack' to '.\Pong\Bat.vm'
 ```
 
 errors are being checked and reported by providing their line number.
