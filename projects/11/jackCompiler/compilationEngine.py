@@ -1,97 +1,70 @@
-
 from jackCompiler.jackTokenizer import JackTokenizer, TTypes, KTypes
-
-
-COMPILE_OP_MAP = { # xml - conversion
-    '&': '&amp;',
-    '<': '&lt;',
-    '>': '&gt;',
-}
+from jackCompiler.symbolTable import SymbolTable, VarKind
 
 
 class CompilationEngine:
-    def __init__(self, jack_file: str, out_file: str, token_file: str):
+    def __init__(self, jack_file: str, out_file: str):
         self.jack_file = jack_file
-        self.out_file = out_file
         self.f_out_file = open(out_file, 'w', encoding='utf-8')
-        self.token_file = token_file
-        self.f_token_file = open(token_file, 'w', encoding='utf-8')
 
         self.tokenizer = JackTokenizer(jack_file)
-        self.indent = 0
+        self.s_table = SymbolTable()
 
-    def raiseException(self, message: str) -> None:
+        self.c_class_name = ''
+        self.c_subroutine_name = ''
+        self.label_id = 0
+
+    def raise_expection(self, message: str) -> None:
         """
         Raises a SyntaxError with the given message.
         Closes file handles before raising the exception.
         """
         self.f_out_file.close()
-        self.f_token_file.close()
         raise SyntaxError(message)
 
-    def writeFile(self, content: str) -> None:
+    @property
+    def label_name(self) -> str:
+        """
+        Generates a unique label name (for if and while statements).
+        """
+        label = f"{self.c_class_name}.{self.c_subroutine_name}.LABEL_{self.label_id}"
+        self.label_id += 1
+        return label
+
+    def write(self, content: str) -> None:
         """
         Writes content to the specified stream with indentation.
         """
-        self.f_out_file.write(' ' * self.indent + content + '\n')
+        if not (content.startswith('label') or content.startswith('function')):
+            self.f_out_file.write('    ')
+        self.f_out_file.write(content + '\n')
 
-    def writeKeyword(self, keyword: KTypes) -> None:
+    def check_keyword(self, keyword: KTypes) -> None:
         """
-        Writes a keyword to the output file with proper indentation.
+        Checks if the current token is the expected keyword.
         """
-        self.writeFile(f'<keyword> {keyword.value} </keyword>')
-        self.f_token_file.write(f'<keyword> {keyword.value} </keyword>\n')
+        if self.tokenizer.keyWord() != keyword:
+            self.raise_expection(f"Expected keyword '{keyword.value}', found '{self.tokenizer.token[0]}' at line {self.tokenizer.token[1]}.")
         self.tokenizer.advance()
 
-    def writeSymbol(self, symbol: str) -> None:
+    def check_symbol(self, symbol: str) -> None:
         """
-        Writes a symbol to the output file with proper indentation.
+        Checks if the current token is the expected symbol.
         """
-        self.writeFile(f'<symbol> {symbol} </symbol>')
-        self.f_token_file.write(f'<symbol> {symbol} </symbol>\n')
-        self.tokenizer.advance()
-
-    def writeInteger(self, integer: int) -> None:
-        """
-        Writes an integer to the output file with proper indentation.
-        """
-        self.writeFile(f'<integerConstant> {integer} </integerConstant>')
-        self.f_token_file.write(f'<integerConstant> {integer} </integerConstant>\n')
-        self.tokenizer.advance()
-
-    def writeString(self, string: str) -> None:
-        """
-        Writes a string to the output file with proper indentation.
-        """
-        self.writeFile(f'<stringConstant> {string} </stringConstant>')
-        self.f_token_file.write(f'<stringConstant> {string} </stringConstant>\n')
-        self.tokenizer.advance()
-
-    def writeIdentifier(self, identifier: str) -> None:
-        """
-        Writes an identifier to the output file with proper indentation.
-        """
-        self.writeFile(f'<identifier> {identifier} </identifier>')
-        self.f_token_file.write(f'<identifier> {identifier} </identifier>\n')
+        if self.tokenizer.symbol() != symbol:
+            self.raise_expection(f"Expected symbol '{symbol}', found '{self.tokenizer.token[0]}' at line {self.tokenizer.token[1]}.")
         self.tokenizer.advance()
 
     def compileClass(self) -> None:
         """
         class: 'class' className '{' classVarDec* subroutineDec* '}'
         """
-        self.writeFile('<class>')
-        self.indent += 2
-        self.f_token_file.write('<tokens>\n')
+        self.check_keyword(KTypes.K_CLASS)
 
-        if self.tokenizer.keyWord() != KTypes.K_CLASS:
-            self.raiseException(f"Expected 'class', found '{self.tokenizer.token[0]}' at line {self.tokenizer.token[1]}.")
-        self.writeKeyword(self.tokenizer.keyWord())
+        self.c_class_name = self.tokenizer.identifier()
+        self.tokenizer.advance()
 
-        self.compileClassName()
-
-        if self.tokenizer.symbol() != '{':
-            self.raiseException("Expected '{', found " + f"'{self.tokenizer.token[0]}' at line {self.tokenizer.token[1]}.")
-        self.writeSymbol(self.tokenizer.symbol())
+        self.check_symbol('{')
 
         while self.tokenizer.tokenType() == TTypes.T_KEYWORD and self.tokenizer.keyWord() in (KTypes.K_STATIC, KTypes.K_FIELD):
             self.compileClassVarDec()
@@ -99,175 +72,133 @@ class CompilationEngine:
         while self.tokenizer.tokenType() == TTypes.T_KEYWORD and self.tokenizer.keyWord() in (KTypes.K_CONSTRUCTOR, KTypes.K_FUNCTION, KTypes.K_METHOD):
             self.compileSubroutineDec()
 
-        if self.tokenizer.symbol() != '}':
-            self.raiseException("Expected '}', found " + f"'{self.tokenizer.token[0]}' at line {self.tokenizer.token[1]}.")
-        self.writeSymbol(self.tokenizer.symbol())
-
-        self.indent -= 2
-        self.writeFile('</class>')
-        self.f_token_file.write('</tokens>\n')
+        self.check_symbol('}')
 
         if self.tokenizer.hasMoreTokens():
-            self.raiseException(f"Unexpected tokens after class definition in '{self.jack_file}' at line {self.tokenizer.token[1]}.")
-
+            self.raise_expection(f"Unexpected tokens after class definition in '{self.jack_file}' at line {self.tokenizer.token[1]}.")
         self.f_out_file.close()
-        self.f_token_file.close()
 
     def compileClassVarDec(self) -> None:
         """
         classVarDec: ('static' | 'field') type varName (',' varName)* ';'
         """
-        self.writeFile('<classVarDec>')
-        self.indent += 2
-        self.writeKeyword(self.tokenizer.keyWord())
+        c_kind = VarKind.STATIC if (self.tokenizer.keyWord() == KTypes.K_STATIC) else VarKind.FIELD
+        self.tokenizer.advance()
 
-        self.compileType()
+        c_type = self.compileType()
 
-        self.compileVarName()
+        self.s_table.add(self.tokenizer.identifier(), c_type, c_kind)
+        self.tokenizer.advance()
 
         while self.tokenizer.tokenType() == TTypes.T_SYMBOL and self.tokenizer.symbol() == ',':
-            self.writeSymbol(self.tokenizer.symbol())
-            self.compileVarName()
+            self.tokenizer.advance()
+            self.s_table.add(self.tokenizer.identifier(), c_type, c_kind)
+            self.tokenizer.advance()
 
-        if self.tokenizer.symbol() != ';':
-            self.raiseException(f"Expected ';', found '{self.tokenizer.token[0]}' at line {self.tokenizer.token[1]}.")
-        self.writeSymbol(self.tokenizer.symbol())
+        self.check_symbol(';')
 
-        self.indent -= 2
-        self.writeFile('</classVarDec>')
-
-    def compileType(self) -> None:
+    def compileType(self) -> str:
         """
         type: 'int' | 'char' | 'boolean' | className
         """
+        c_type: str = ''
         if self.tokenizer.tokenType() == TTypes.T_KEYWORD and self.tokenizer.keyWord() in (KTypes.K_INT, KTypes.K_CHAR, KTypes.K_BOOLEAN):
-            self.writeKeyword(self.tokenizer.keyWord())
+            c_type = self.tokenizer.keyWord().value
         elif self.tokenizer.tokenType() == TTypes.T_IDENTIFIER:
-            self.compileClassName()
+            c_type = self.tokenizer.identifier()
         else:
-            self.raiseException(f"Expected type (int, char, boolean, or identifier), found '{self.tokenizer.token[0]}' at line {self.tokenizer.token[1]}.")
+            self.raise_expection(f"Expected type (int, char, boolean, or identifier), found '{self.tokenizer.token[0]}' at line {self.tokenizer.token[1]}.")
+        self.tokenizer.advance()
+        return c_type
 
     def compileSubroutineDec(self) -> None:
         """
         subroutineDec: ('constructor' | 'function' | 'method') (type | 'void') subroutineName '(' parameterList ')' subroutineBody
         """
-        self.writeFile('<subroutineDec>')
-        self.indent += 2
-        self.writeKeyword(self.tokenizer.keyWord())
+        self.s_table.start_subroutine()
+
+        c_keyword = self.tokenizer.keyWord()
+        if c_keyword == KTypes.K_METHOD:
+            self.s_table.add('this', self.c_class_name, VarKind.ARG)
+        self.tokenizer.advance()
 
         if self.tokenizer.tokenType() == TTypes.T_KEYWORD and self.tokenizer.keyWord() == KTypes.K_VOID:
-            self.writeKeyword(self.tokenizer.keyWord())
+            self.tokenizer.advance()
         else:
             self.compileType()
 
-        self.compileSubroutineName()
+        self.c_subroutine_name = self.tokenizer.identifier()
+        self.tokenizer.advance()
 
-        if self.tokenizer.symbol() != '(':
-            self.raiseException(f"Expected '(', found '{self.tokenizer.token[0]}' at line {self.tokenizer.token[1]}.")
-        self.writeSymbol(self.tokenizer.symbol())
+        self.check_symbol('(')
 
         self.compileParameterList()
 
-        if self.tokenizer.symbol() != ')':
-            self.raiseException(f"Expected ')', found '{self.tokenizer.token[0]}' at line {self.tokenizer.token[1]}.")
-        self.writeSymbol(self.tokenizer.symbol())
+        self.check_symbol(')')
 
-        self.compileSubroutineBody()
-
-        self.indent -= 2
-        self.writeFile('</subroutineDec>')
+        self.compileSubroutineBody(c_keyword)
 
     def compileParameterList(self) -> None:
         """
         parameterList: (type varName (',' type varName)*)?
         """
-        self.writeFile('<parameterList>')
-        self.indent += 2
-
         if self.tokenizer.tokenType() != TTypes.T_SYMBOL or self.tokenizer.symbol() != ')':
-            self.compileType()
-            self.compileVarName()
+            c_type = self.compileType()
+            self.s_table.add(self.tokenizer.identifier(), c_type, VarKind.ARG)
+            self.tokenizer.advance()
 
             while self.tokenizer.tokenType() == TTypes.T_SYMBOL and self.tokenizer.symbol() == ',':
-                self.writeSymbol(self.tokenizer.symbol())
-                self.compileType()
-                self.compileVarName()
+                self.tokenizer.advance()
+                c_type = self.compileType()
+                self.s_table.add(self.tokenizer.identifier(), c_type, VarKind.ARG)
+                self.tokenizer.advance()
 
-        self.indent -= 2
-        self.writeFile('</parameterList>')
-
-    def compileSubroutineBody(self) -> None:
+    def compileSubroutineBody(self, c_keyword: KTypes) -> None:
         """
         subroutineBody: '{' varDec* statements '}'
         """
-        self.writeFile('<subroutineBody>')
-        self.indent += 2
-
-        if self.tokenizer.symbol() != '{':
-            self.raiseException("Expected '{', found " + f"'{self.tokenizer.token[0]}' at line {self.tokenizer.token[1]}.")
-        self.writeSymbol(self.tokenizer.symbol())
+        self.check_symbol('{')
 
         while self.tokenizer.tokenType() == TTypes.T_KEYWORD and self.tokenizer.keyWord() == KTypes.K_VAR:
             self.compileVarDec()
 
+        self.write(f"function {self.c_class_name}.{self.c_subroutine_name} {self.s_table.get_max_index(VarKind.LOCAL)}")
+        if c_keyword == KTypes.K_CONSTRUCTOR:
+            self.write(f"push constant {self.s_table.get_max_index(VarKind.FIELD)}")
+            self.write('call Memory.alloc 1')
+            self.write('pop pointer 0')
+        elif c_keyword == KTypes.K_METHOD:
+            self.write('push argument 0')
+            self.write('pop pointer 0')
+
         self.compileStatements()
 
-        if self.tokenizer.symbol() != '}':
-            self.raiseException("Expected '}', found " + f"'{self.tokenizer.token[0]}' at line {self.tokenizer.token[1]}.")
-        self.writeSymbol(self.tokenizer.symbol())
-
-        self.indent -= 2
-        self.writeFile('</subroutineBody>')
+        self.check_symbol('}')
 
     def compileVarDec(self) -> None:
         """
         varDec: 'var' type varName (',' varName)* ';'s
         """
-        self.writeFile('<varDec>')
-        self.indent += 2
-        self.writeKeyword(self.tokenizer.keyWord())
+        self.tokenizer.advance()
 
-        self.compileType()
+        c_type = self.compileType()
 
-        self.compileVarName()
+        self.s_table.add(self.tokenizer.identifier(), c_type, VarKind.LOCAL)
+        self.tokenizer.advance()
 
         while self.tokenizer.tokenType() == TTypes.T_SYMBOL and self.tokenizer.symbol() == ',':
-            self.writeSymbol(self.tokenizer.symbol())
-            self.compileVarName()
+            self.tokenizer.advance()
+            self.s_table.add(self.tokenizer.identifier(), c_type, VarKind.LOCAL)
+            self.tokenizer.advance()
 
-        if self.tokenizer.symbol() != ';':
-            self.raiseException(f"Expected ';', found '{self.tokenizer.token[0]}' at line {self.tokenizer.token[1]}.")
-        self.writeSymbol(self.tokenizer.symbol())
-
-        self.indent -= 2
-        self.writeFile('</varDec>')
-
-    def compileClassName(self) -> None:
-        """
-        className: identifier
-        """
-        self.writeIdentifier(self.tokenizer.identifier())
-
-    def compileSubroutineName(self) -> None:
-        """
-        subroutineName: identifier
-        """
-        self.writeIdentifier(self.tokenizer.identifier())
-
-    def compileVarName(self) -> None:
-        """
-        varName: identifier
-        """
-        self.writeIdentifier(self.tokenizer.identifier())
+        self.check_symbol(';')
 
     def compileStatements(self) -> None:
         """
         statements: statement*
         """
-        self.writeFile('<statements>')
-        self.indent += 2
-
-        while self.tokenizer.tokenType() == TTypes.T_KEYWORD and self.tokenizer.keyWord() in (KTypes.K_LET, KTypes.K_IF, KTypes.K_WHILE, KTypes.K_DO, KTypes.K_RETURN):
+        while self.tokenizer.tokenType() == TTypes.T_KEYWORD and \
+            self.tokenizer.keyWord() in (KTypes.K_LET, KTypes.K_IF, KTypes.K_WHILE, KTypes.K_DO, KTypes.K_RETURN):
             keyword = self.tokenizer.keyWord()
             if keyword == KTypes.K_LET:
                 self.compileLetStatement()
@@ -280,247 +211,297 @@ class CompilationEngine:
             elif keyword == KTypes.K_RETURN:
                 self.compileReturnStatement()
 
-        self.indent -= 2
-        self.writeFile('</statements>')
-
     def compileLetStatement(self) -> None:
         """
         letStatement: 'let' varName ('[' expression ']')? '=' expression ';'
         """
-        self.writeFile('<letStatement>')
-        self.indent += 2
-        self.writeKeyword(self.tokenizer.keyWord())
+        self.tokenizer.advance()
 
-        self.compileVarName()
+        c_varName = self.tokenizer.identifier()
+        self.tokenizer.advance()
+        isArray = False
 
         if self.tokenizer.tokenType() == TTypes.T_SYMBOL and self.tokenizer.symbol() == '[':
-            self.writeSymbol(self.tokenizer.symbol())
+            isArray = True
+            self.tokenizer.advance()
+            self.write(f"push {SymbolTable.get_segment(self.s_table.get_info(c_varName, SymbolTable.VAR_KIND))} {self.s_table.get_info(c_varName, SymbolTable.VAR_INDEX)}")
             self.compileExpression()
-            if self.tokenizer.symbol() != ']':
-                self.raiseException(f"Expected ']', found '{self.tokenizer.token[0]}' at line {self.tokenizer.token[1]}.")
-            self.writeSymbol(self.tokenizer.symbol())
+            self.check_symbol(']')
+            self.write('add')
 
-        if self.tokenizer.symbol() != '=':
-            self.raiseException(f"Expected '=', found '{self.tokenizer.token[0]}' at line {self.tokenizer.token[1]}.")
-        self.writeSymbol(self.tokenizer.symbol())
+        self.check_symbol('=')
 
         self.compileExpression()
 
-        if self.tokenizer.symbol() != ';':
-            self.raiseException(f"Expected ';', found '{self.tokenizer.token[0]}' at line {self.tokenizer.token[1]}.")
-        self.writeSymbol(self.tokenizer.symbol())
+        if isArray:
+            self.write('pop temp 0')
+            self.write('pop pointer 1')
+            self.write('push temp 0')
+            self.write('pop that 0')
+        else:
+            self.write(f"pop {SymbolTable.get_segment(self.s_table.get_info(c_varName, SymbolTable.VAR_KIND))} {self.s_table.get_info(c_varName, SymbolTable.VAR_INDEX)}")
 
-        self.indent -= 2
-        self.writeFile('</letStatement>')
+        self.check_symbol(';')
 
     def compileIfStatement(self) -> None:
         """
         ifStatement: 'if' '(' expression ')' '{' statements '}' ('else' '{' statements '}')?
         """
-        self.writeFile('<ifStatement>')
-        self.indent += 2
-        self.writeKeyword(self.tokenizer.keyWord())
+        label_a, label_b = self.label_name, self.label_name
+        self.tokenizer.advance()
 
-        if self.tokenizer.symbol() != '(':
-            self.raiseException(f"Expected '(', found '{self.tokenizer.token[0]}' at line {self.tokenizer.token[1]}.")
-        self.writeSymbol(self.tokenizer.symbol())
+        self.check_symbol('(')
 
         self.compileExpression()
 
-        if self.tokenizer.symbol() != ')':
-            self.raiseException(f"Expected ')', found '{self.tokenizer.token[0]}' at line {self.tokenizer.token[1]}.")
-        self.writeSymbol(self.tokenizer.symbol())
+        self.check_symbol(')')
 
-        if self.tokenizer.symbol() != '{':
-            self.raiseException("Expected '{', found " + f"'{self.tokenizer.token[0]}' at line {self.tokenizer.token[1]}.")
-        self.writeSymbol(self.tokenizer.symbol())
+        self.write('not')
+        self.write(f'if-goto {label_a}')
+
+        self.check_symbol('{')
 
         self.compileStatements()
 
-        if self.tokenizer.symbol() != '}':
-            self.raiseException("Expected '}', found " + f"'{self.tokenizer.token[0]}' at line {self.tokenizer.token[1]}.")
-        self.writeSymbol(self.tokenizer.symbol())
+        self.check_symbol('}')
+
+        self.write(f'goto {label_b}')
+        self.write(f'label {label_a}')
 
         if self.tokenizer.tokenType() == TTypes.T_KEYWORD and self.tokenizer.keyWord() == KTypes.K_ELSE:
-            self.writeKeyword(self.tokenizer.keyWord())
-            if self.tokenizer.symbol() != '{':
-                self.raiseException("Expected '{', found " + f"'{self.tokenizer.token[0]}' at line {self.tokenizer.token[1]}.")
-            self.writeSymbol(self.tokenizer.symbol())
+            self.tokenizer.advance()
+            self.check_symbol('{')
             self.compileStatements()
-            if self.tokenizer.symbol() != '}':
-                self.raiseException("Expected '}', found " + f"'{self.tokenizer.token[0]}' at line {self.tokenizer.token[1]}.")
-            self.writeSymbol(self.tokenizer.symbol())
+            self.check_symbol('}')
 
-        self.indent -= 2
-        self.writeFile('</ifStatement>')
+        self.write(f"label {label_b}")
 
     def compileWhileStatement(self) -> None:
         """
         whileStatement: 'while' '(' expression ')' '{' statements '}'
         """
-        self.writeFile('<whileStatement>')
-        self.indent += 2
-        self.writeKeyword(self.tokenizer.keyWord())
+        label_a, label_b = self.label_name, self.label_name
+        self.tokenizer.advance()
 
-        if self.tokenizer.symbol() != '(':
-            self.raiseException(f"Expected '(', found '{self.tokenizer.token[0]}' at line {self.tokenizer.token[1]}.")
-        self.writeSymbol(self.tokenizer.symbol())
+        self.write(f'label {label_a}')
+
+        self.check_symbol('(')
 
         self.compileExpression()
 
-        if self.tokenizer.symbol() != ')':
-            self.raiseException(f"Expected ')', found '{self.tokenizer.token[0]}' at line {self.tokenizer.token[1]}.")
-        self.writeSymbol(self.tokenizer.symbol())
+        self.check_symbol(')')
 
-        if self.tokenizer.symbol() != '{':
-            self.raiseException("Expected '{', found " + f"'{self.tokenizer.token[0]}' at line {self.tokenizer.token[1]}.")
-        self.writeSymbol(self.tokenizer.symbol())
+        self.write('not')
+        self.write(f'if-goto {label_b}')
+
+        self.check_symbol('{')
 
         self.compileStatements()
 
-        if self.tokenizer.symbol() != '}':
-            self.raiseException("Expected '}', found " + f"'{self.tokenizer.token[0]}' at line {self.tokenizer.token[1]}.")
-        self.writeSymbol(self.tokenizer.symbol())
+        self.check_symbol('}')
 
-        self.indent -= 2
-        self.writeFile('</whileStatement>')
+        self.write(f'goto {label_a}')
+        self.write(f'label {label_b}')
 
     def compileDoStatement(self) -> None:
         """
         doStatement: 'do' subroutineCall ';'
         """
-        self.writeFile('<doStatement>')
-        self.indent += 2
-        self.writeKeyword(self.tokenizer.keyWord())
+        self.tokenizer.advance()
 
-        self.compileVarName()
-        self.compileSubroutineCall()
+        c_varName = self.tokenizer.identifier()
+        self.tokenizer.advance()
 
-        if self.tokenizer.symbol() != ';':
-            self.raiseException(f"Expected ';', found '{self.tokenizer.token[0]}' at line {self.tokenizer.token[1]}.")
-        self.writeSymbol(self.tokenizer.symbol())
+        self.compileSubroutineCall(c_varName)
 
-        self.indent -= 2
-        self.writeFile('</doStatement>')
+        self.check_symbol(';')
+
+        self.write('pop temp 0')
 
     def compileReturnStatement(self) -> None:
         """
         returnStatement: 'return' expression? ';'
         """
-        self.writeFile('<returnStatement>')
-        self.indent += 2
-        self.writeKeyword(self.tokenizer.keyWord())
+        self.tokenizer.advance()
 
         if self.tokenizer.tokenType() != TTypes.T_SYMBOL:
             self.compileExpression()
+        else:
+            self.write('push constant 0')
 
-        if self.tokenizer.symbol() != ';':
-            self.raiseException(f"Expected ';', found '{self.tokenizer.token[0]}' at line {self.tokenizer.token[1]}.")
-        self.writeSymbol(self.tokenizer.symbol())
+        self.check_symbol(';')
 
-        self.indent -= 2
-        self.writeFile('</returnStatement>')
+        self.write('return')
 
     def compileExpression(self) -> None:
         """
         expression: term (op term)*
         """
-        self.writeFile('<expression>')
-        self.indent += 2
-
         self.compileTerm()
 
-        while self.tokenizer.tokenType() == TTypes.T_SYMBOL and self.tokenizer.symbol() in ('+', '-', '*', '/', '&', '|', '<', '>', '='):
-            self.compileOp()
-            self.compileTerm()
+        while self.tokenizer.tokenType() == TTypes.T_SYMBOL and \
+            self.tokenizer.symbol() in ('+', '-', '*', '/', '&', '|', '<', '>', '='):
+            c_op = self.compileOp()
 
-        self.indent -= 2
-        self.writeFile('</expression>')
+            self.compileTerm()
+            self.write(f"{c_op}")
 
     def compileTerm(self) -> None:
         """
         term: integerConstant | stringConstant | keywordConstant | varName | varName '[' expression ']' | subroutineCall | '(' expression ')' | unaryOp term
         """
-        self.writeFile('<term>')
-        self.indent += 2
-
         if self.tokenizer.tokenType() == TTypes.T_INTEGER:
-            self.writeInteger(self.tokenizer.intVal())
+
+            self.write(f"push constant {self.tokenizer.intVal()}")
+            self.tokenizer.advance()
+
         elif self.tokenizer.tokenType() == TTypes.T_STRING:
-            self.writeString(self.tokenizer.stringVal())
-        elif self.tokenizer.tokenType() == TTypes.T_KEYWORD and self.tokenizer.keyWord() in (KTypes.K_TRUE, KTypes.K_FALSE, KTypes.K_NULL, KTypes.K_THIS):
-            self.compileKeywordConstant()
+
+            c_string = self.tokenizer.stringVal()
+            self.write(f"push constant {len(c_string)}")
+            self.write('call String.new 1')
+            for char in c_string:
+                self.write(f"push constant {ord(char)}")
+                self.write('call String.appendChar 2')
+            self.tokenizer.advance()
+
+        elif self.tokenizer.tokenType() == TTypes.T_KEYWORD and \
+            self.tokenizer.keyWord() in (KTypes.K_TRUE, KTypes.K_FALSE, KTypes.K_NULL, KTypes.K_THIS):
+
+            self.write(f"push {'pointer' if (self.tokenizer.keyWord() == KTypes.K_THIS) else 'constant'} 0")
+            if self.tokenizer.keyWord() == KTypes.K_TRUE:
+                self.write('not')
+            self.tokenizer.advance()
+
         elif self.tokenizer.tokenType() == TTypes.T_IDENTIFIER:
-            self.compileVarName()
+
+            c_varName = self.tokenizer.identifier()
+            self.tokenizer.advance()
+
             if self.tokenizer.tokenType() == TTypes.T_SYMBOL and self.tokenizer.symbol() == '[':
-                self.writeSymbol(self.tokenizer.symbol())
+                self.tokenizer.advance()
+
+                self.write(f"push {SymbolTable.get_segment(self.s_table.get_info(c_varName, SymbolTable.VAR_KIND))} {self.s_table.get_info(c_varName, SymbolTable.VAR_INDEX)}")
                 self.compileExpression()
-                if self.tokenizer.symbol() != ']':
-                    self.raiseException(f"Expected ']', found '{self.tokenizer.token[0]}' at line {self.tokenizer.token[1]}.")
-                self.writeSymbol(self.tokenizer.symbol())
+
+                self.check_symbol(']')
+
+                self.write('add')
+                self.write('pop pointer 1')
+                self.write('push that 0')
             elif self.tokenizer.tokenType() == TTypes.T_SYMBOL and self.tokenizer.symbol() in ('.', '('):
-                self.compileSubroutineCall()
+                self.compileSubroutineCall(c_varName)
+            else:
+                self.write(f"push {SymbolTable.get_segment(self.s_table.get_info(c_varName, SymbolTable.VAR_KIND))} {self.s_table.get_info(c_varName, SymbolTable.VAR_INDEX)}")
+
         elif self.tokenizer.tokenType() == TTypes.T_SYMBOL and self.tokenizer.symbol() == '(':
-            self.writeSymbol(self.tokenizer.symbol())
+            self.tokenizer.advance()
+
             self.compileExpression()
-            if self.tokenizer.symbol() != ')':
-                self.raiseException(f"Expected ')', found '{self.tokenizer.token[0]}' at line {self.tokenizer.token[1]}.")
-            self.writeSymbol(self.tokenizer.symbol())
+
+            self.check_symbol(')')
+
         elif self.tokenizer.tokenType() == TTypes.T_SYMBOL and self.tokenizer.symbol() in ('-', '~'):
-            self.compileUnaryOp()
+
+            c_op = self.compileUnaryOp()
+
             self.compileTerm()
+            self.write(f"{c_op}")
         else:
             raise SyntaxError(f"Unexpected token: '{self.tokenizer.token[0]}' at line {self.tokenizer.token[1]}.")
 
-        self.indent -= 2
-        self.writeFile('</term>')
 
-    def compileSubroutineCall(self) -> None:
+    def compileSubroutineCall(self, c_identifier: str) -> None:
         """
         subroutineCall: subroutineName '(' expressionList ')' | (className | varName) '.' subroutineName '(' expressionList ')'
         """
-        if self.tokenizer.symbol() == '.':
-            self.writeSymbol(self.tokenizer.symbol())
-            self.compileSubroutineName()
-        if self.tokenizer.symbol() != '(':
-            self.raiseException(f"Expected '(', found '{self.tokenizer.token[0]}' at line {self.tokenizer.token[1]}.")
-        self.writeSymbol(self.tokenizer.symbol())
-        self.compileExpressionList()
-        if self.tokenizer.symbol() != ')':
-            self.raiseException(f"Expected ')', found '{self.tokenizer.token[0]}' at line {self.tokenizer.token[1]}.")
-        self.writeSymbol(self.tokenizer.symbol())
+        if self.tokenizer.symbol() == '(':
+            self.tokenizer.advance()
+            self.write('push pointer 0')
 
-    def compileExpressionList(self) -> None:
+            arg_count = self.compileExpressionList()
+
+            self.check_symbol(')')
+
+            self.write(f"call {self.c_class_name}.{c_identifier} {arg_count + 1}")
+        elif self.tokenizer.symbol() == '.':
+            self.tokenizer.advance()
+
+            c_subroutine_name = self.tokenizer.identifier()
+            self.tokenizer.advance()
+
+            arg_count = 0
+            c_type = self.s_table.get_info(c_identifier, SymbolTable.VAR_TYPE)
+            if c_type:
+                if c_type in ('int', 'char', 'boolean'):
+                    self.raise_expection(f"Cannot call method on primitive type '{c_type}' at line {self.tokenizer.token[1]}.")
+                else:
+                    self.write(f"push {SymbolTable.get_segment(self.s_table.get_info(c_identifier, SymbolTable.VAR_KIND))} {self.s_table.get_info(c_identifier, SymbolTable.VAR_INDEX)}")
+                    arg_count += 1
+                    c_identifier = c_type
+
+            self.check_symbol('(')
+
+            arg_count += self.compileExpressionList()
+
+            self.check_symbol(')')
+
+            self.write(f"call {c_identifier}.{c_subroutine_name} {arg_count}")
+        else:
+            self.raise_expection(f"Expected '(' or '.', found '{self.tokenizer.token[0]}' at line {self.tokenizer.token[1]}.")
+
+    def compileExpressionList(self) -> int:
         """
         expressionList: (expression (',' expression)*)?
         """
-        self.writeFile('<expressionList>')
-        self.indent += 2
+        arg_count = 0
 
         if self.tokenizer.tokenType() != TTypes.T_SYMBOL or self.tokenizer.symbol() == '(':
             self.compileExpression()
+            arg_count += 1
 
             while self.tokenizer.tokenType() == TTypes.T_SYMBOL and self.tokenizer.symbol() == ',':
-                self.writeSymbol(self.tokenizer.symbol())
+                self.tokenizer.advance()
+
                 self.compileExpression()
+                arg_count += 1
 
-        self.indent -= 2
-        self.writeFile('</expressionList>')
+        return arg_count
 
-    def compileOp(self) -> None:
+    def compileOp(self) -> str:
         """
         op: '+' | '-' | '*' | '/' | '&' | '|' | '<' | '>' | '='
         """
-        self.writeSymbol(COMPILE_OP_MAP.get(self.tokenizer.symbol(), self.tokenizer.symbol()))
+        c_op = self.tokenizer.symbol()
+        self.tokenizer.advance()
+        if c_op == '+':
+            return 'add'
+        if c_op == '-':
+            return 'sub'
+        if c_op == '*':
+            return 'call Math.multiply 2'
+        if c_op == '/':
+            return 'call Math.divide 2'
+        if c_op == '&':
+            return 'and'
+        if c_op == '|':
+            return 'or'
+        if c_op == '<':
+            return 'lt'
+        if c_op == '>':
+            return 'gt'
+        if c_op == '=':
+            return 'eq'
+        self.raise_expection(f"Unknown operator: '{c_op}' at line {self.tokenizer.token[1]}.")
 
-    def compileUnaryOp(self) -> None:
+    def compileUnaryOp(self) -> str:
         """
         unaryOp: '-' | '~'
         """
-        self.writeSymbol(self.tokenizer.symbol())
-
-    def compileKeywordConstant(self) -> None:
-        """
-        keywordConstant: 'true' | 'false' | 'null' | 'this'
-        """
-        self.writeKeyword(self.tokenizer.keyWord())
+        c_op = self.tokenizer.symbol()
+        self.tokenizer.advance()
+        if c_op == '-':
+            return 'neg'
+        if c_op == '~':
+            return 'not'
+        self.raise_expection(f"Unknown operator: '{c_op}' at line {self.tokenizer.token[1]}.")
