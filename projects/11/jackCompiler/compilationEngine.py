@@ -1,6 +1,6 @@
 from jackCompiler.jackTokenizer import JackTokenizer, TTypes, KTypes
 from jackCompiler.symbolTable import SymbolTable, VarKind
-
+from jackCompiler import __project__, __author__
 
 class CompilationEngine:
     def __init__(self, jack_file: str, out_file: str):
@@ -13,6 +13,8 @@ class CompilationEngine:
         self.c_class_name = ''
         self.c_subroutine_name = ''
         self.label_id = 0
+
+        self.write('', f"{__project__} by {__author__} - {jack_file}\n")
 
     def raise_expection(self, message: str) -> None:
         """
