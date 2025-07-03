@@ -31,13 +31,16 @@ class CompilationEngine:
         self.label_id += 1
         return label
 
-    def write(self, content: str) -> None:
+    def write(self, content: str, comment: str = '') -> None:
         """
         Writes content to the specified stream with indentation.
         """
         if not (content.startswith('label') or content.startswith('function')):
             self.f_out_file.write('    ')
-        self.f_out_file.write(content + '\n')
+        self.f_out_file.write(content)
+        if comment:
+            self.f_out_file.write(f'  // {comment}')
+        self.f_out_file.write('\n')
 
     def check_keyword(self, keyword: KTypes) -> None:
         """
@@ -164,12 +167,12 @@ class CompilationEngine:
 
         self.write(f"function {self.c_class_name}.{self.c_subroutine_name} {self.s_table.get_max_index(VarKind.LOCAL)}")
         if c_keyword == KTypes.K_CONSTRUCTOR:
-            self.write(f"push constant {self.s_table.get_max_index(VarKind.FIELD)}")
+            self.write(f"push constant {self.s_table.get_max_index(VarKind.FIELD)}", "Constructor: push object size")
             self.write('call Memory.alloc 1')
-            self.write('pop pointer 0')
+            self.write('pop pointer 0', "Constructor: set 'this' pointer")
         elif c_keyword == KTypes.K_METHOD:
-            self.write('push argument 0')
-            self.write('pop pointer 0')
+            self.write('push argument 0', "Method: push 'this' reference")
+            self.write('pop pointer 0', "Method: set 'this' pointer")
 
         self.compileStatements()
 
@@ -224,22 +227,22 @@ class CompilationEngine:
         if self.tokenizer.tokenType() == TTypes.T_SYMBOL and self.tokenizer.symbol() == '[':
             isArray = True
             self.tokenizer.advance()
-            self.write(f"push {SymbolTable.get_segment(self.s_table.get_info(c_varName, SymbolTable.VAR_KIND))} {self.s_table.get_info(c_varName, SymbolTable.VAR_INDEX)}")
+            self.write(f"push {SymbolTable.get_segment(self.s_table.get_info(c_varName, SymbolTable.VAR_KIND))} {self.s_table.get_info(c_varName, SymbolTable.VAR_INDEX)}", f"Array access: push {c_varName} base address")
             self.compileExpression()
             self.check_symbol(']')
-            self.write('add')
+            self.write('add', "Array access: calculate element address")
 
         self.check_symbol('=')
 
         self.compileExpression()
 
         if isArray:
-            self.write('pop temp 0')
-            self.write('pop pointer 1')
-            self.write('push temp 0')
-            self.write('pop that 0')
+            self.write('pop temp 0', "Array assignment: store value in temp")
+            self.write('pop pointer 1', "Array assignment: set THAT pointer")
+            self.write('push temp 0', "Array assignment: restore value")
+            self.write('pop that 0', "Array assignment: store in array element")
         else:
-            self.write(f"pop {SymbolTable.get_segment(self.s_table.get_info(c_varName, SymbolTable.VAR_KIND))} {self.s_table.get_info(c_varName, SymbolTable.VAR_INDEX)}")
+            self.write(f"pop {SymbolTable.get_segment(self.s_table.get_info(c_varName, SymbolTable.VAR_KIND))} {self.s_table.get_info(c_varName, SymbolTable.VAR_INDEX)}", f"Variable assignment: store in {c_varName}")
 
         self.check_symbol(';')
 
@@ -256,8 +259,8 @@ class CompilationEngine:
 
         self.check_symbol(')')
 
-        self.write('not')
-        self.write(f'if-goto {label_a}')
+        self.write('not', "If statement: negate condition")
+        self.write(f'if-goto {label_a}', "If statement: jump to else/end if false")
 
         self.check_symbol('{')
 
@@ -265,8 +268,8 @@ class CompilationEngine:
 
         self.check_symbol('}')
 
-        self.write(f'goto {label_b}')
-        self.write(f'label {label_a}')
+        self.write(f'goto {label_b}', "If statement: skip else block")
+        self.write(f'label {label_a}', "If statement: else label")
 
         if self.tokenizer.tokenType() == TTypes.T_KEYWORD and self.tokenizer.keyWord() == KTypes.K_ELSE:
             self.tokenizer.advance()
@@ -274,7 +277,7 @@ class CompilationEngine:
             self.compileStatements()
             self.check_symbol('}')
 
-        self.write(f"label {label_b}")
+        self.write(f"label {label_b}", "If statement: end label")
 
     def compileWhileStatement(self) -> None:
         """
@@ -283,7 +286,7 @@ class CompilationEngine:
         label_a, label_b = self.label_name, self.label_name
         self.tokenizer.advance()
 
-        self.write(f'label {label_a}')
+        self.write(f'label {label_a}', "While loop: start label")
 
         self.check_symbol('(')
 
@@ -291,8 +294,8 @@ class CompilationEngine:
 
         self.check_symbol(')')
 
-        self.write('not')
-        self.write(f'if-goto {label_b}')
+        self.write('not', "While loop: negate condition")
+        self.write(f'if-goto {label_b}', "While loop: exit if condition false")
 
         self.check_symbol('{')
 
@@ -300,8 +303,8 @@ class CompilationEngine:
 
         self.check_symbol('}')
 
-        self.write(f'goto {label_a}')
-        self.write(f'label {label_b}')
+        self.write(f'goto {label_a}', "While loop: jump back to start")
+        self.write(f'label {label_b}', "While loop: end label")
 
     def compileDoStatement(self) -> None:
         """
@@ -316,7 +319,7 @@ class CompilationEngine:
 
         self.check_symbol(';')
 
-        self.write('pop temp 0')
+        self.write('pop temp 0', "Do statement: discard return value")
 
     def compileReturnStatement(self) -> None:
         """
@@ -327,7 +330,7 @@ class CompilationEngine:
         if self.tokenizer.tokenType() != TTypes.T_SYMBOL:
             self.compileExpression()
         else:
-            self.write('push constant 0')
+            self.write('push constant 0', "Return statement: push default return value")
 
         self.check_symbol(';')
 
@@ -358,17 +361,18 @@ class CompilationEngine:
         elif self.tokenizer.tokenType() == TTypes.T_STRING:
 
             c_string = self.tokenizer.stringVal()
-            self.write(f"push constant {len(c_string)}")
+            self.write(f"push constant {len(c_string)}", "String constant: push length")
             self.write('call String.new 1')
             for char in c_string:
-                self.write(f"push constant {ord(char)}")
+                self.write(f"push constant {ord(char)}", f"String constant: push char '{char}'")
                 self.write('call String.appendChar 2')
             self.tokenizer.advance()
 
         elif self.tokenizer.tokenType() == TTypes.T_KEYWORD and \
             self.tokenizer.keyWord() in (KTypes.K_TRUE, KTypes.K_FALSE, KTypes.K_NULL, KTypes.K_THIS):
 
-            self.write(f"push {'pointer' if (self.tokenizer.keyWord() == KTypes.K_THIS) else 'constant'} 0")
+            keyword = self.tokenizer.keyWord().value
+            self.write(f"push {'pointer' if (self.tokenizer.keyWord() == KTypes.K_THIS) else 'constant'} 0", f"Keyword constant: {keyword}")
             if self.tokenizer.keyWord() == KTypes.K_TRUE:
                 self.write('not')
             self.tokenizer.advance()
@@ -381,18 +385,18 @@ class CompilationEngine:
             if self.tokenizer.tokenType() == TTypes.T_SYMBOL and self.tokenizer.symbol() == '[':
                 self.tokenizer.advance()
 
-                self.write(f"push {SymbolTable.get_segment(self.s_table.get_info(c_varName, SymbolTable.VAR_KIND))} {self.s_table.get_info(c_varName, SymbolTable.VAR_INDEX)}")
+                self.write(f"push {SymbolTable.get_segment(self.s_table.get_info(c_varName, SymbolTable.VAR_KIND))} {self.s_table.get_info(c_varName, SymbolTable.VAR_INDEX)}", f"Array access: push {c_varName} base address")
                 self.compileExpression()
 
                 self.check_symbol(']')
 
-                self.write('add')
-                self.write('pop pointer 1')
-                self.write('push that 0')
+                self.write('add', "Array access: calculate element address")
+                self.write('pop pointer 1', "Array access: set THAT pointer")
+                self.write('push that 0', "Array access: push element value")
             elif self.tokenizer.tokenType() == TTypes.T_SYMBOL and self.tokenizer.symbol() in ('.', '('):
                 self.compileSubroutineCall(c_varName)
             else:
-                self.write(f"push {SymbolTable.get_segment(self.s_table.get_info(c_varName, SymbolTable.VAR_KIND))} {self.s_table.get_info(c_varName, SymbolTable.VAR_INDEX)}")
+                self.write(f"push {SymbolTable.get_segment(self.s_table.get_info(c_varName, SymbolTable.VAR_KIND))} {self.s_table.get_info(c_varName, SymbolTable.VAR_INDEX)}", f"Variable: push {c_varName}")
 
         elif self.tokenizer.tokenType() == TTypes.T_SYMBOL and self.tokenizer.symbol() == '(':
             self.tokenizer.advance()
@@ -417,7 +421,7 @@ class CompilationEngine:
         """
         if self.tokenizer.symbol() == '(':
             self.tokenizer.advance()
-            self.write('push pointer 0')
+            self.write('push pointer 0', f"Method call: push 'this' for {c_identifier}")
 
             arg_count = self.compileExpressionList()
 
@@ -436,7 +440,7 @@ class CompilationEngine:
                 if c_type in ('int', 'char', 'boolean'):
                     self.raise_expection(f"Cannot call method on primitive type '{c_type}' at line {self.tokenizer.token[1]}.")
                 else:
-                    self.write(f"push {SymbolTable.get_segment(self.s_table.get_info(c_identifier, SymbolTable.VAR_KIND))} {self.s_table.get_info(c_identifier, SymbolTable.VAR_INDEX)}")
+                    self.write(f"push {SymbolTable.get_segment(self.s_table.get_info(c_identifier, SymbolTable.VAR_KIND))} {self.s_table.get_info(c_identifier, SymbolTable.VAR_INDEX)}", f"Method call: push object reference for {c_identifier}")
                     arg_count += 1
                     c_identifier = c_type
 

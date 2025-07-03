@@ -41,7 +41,7 @@ class SymbolTable:
         """
         if kind in (VarKind.FIELD, VarKind.STATIC):
             self.class_table[name] = (type_, kind, self.index_counter[kind.value])
-        else:
+        else: # local or argument
             self.subroutine_table[name] = (type_, kind, self.index_counter[kind.value])
         self.index_counter[kind.value] += 1
 
