@@ -117,26 +117,6 @@ python -m jackCompiler [-h | --help] [<file.jack> | <directory>]
    INFO: Successfully compiled '.\Pong\Bat.jack' to '.\Pong\Bat.vm'
 ```
 
-errors are being checked and reported by providing their line number.
-
-
-```
-   INFO: Compiling '.\ArrayTest\Main.jack'
-  ERROR: Current token is not a keyword!: 'fizz' at line 9
-
-   INFO: Compiling '.\ArrayTest\Main.jack'
-  ERROR: Expected 'class', found 'void' at line 9.
-
-   INFO: Compiling '.\ArrayTest\Main.jack'
-  ERROR: Expected '(', found '[' at line 10.
-
-   INFO: Compiling '.\ArrayTest\Main.jack'
-  ERROR: Expected type (int, char, boolean, or identifier), found '123' at line 11.
-
-  ...
-
-  ERROR: Path '.\ArrayTestFizzBuzz\' is neither a file nor a directory.
-```
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
