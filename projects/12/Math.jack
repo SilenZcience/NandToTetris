@@ -10,8 +10,6 @@
  *  using calls to OS functions in this class.
  */
 class Math {
-    // static int n;             // Number of bits used for representing a two's complement integer
-    // static Array powersOfTwo; // Stores 2^0, 2^1, 2^2,..., 2^(n-1)
 
     // Initializes the Math library.
     function void init() {
