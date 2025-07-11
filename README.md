@@ -8,7 +8,7 @@
 <div align="center">
 <h2 align="center"><b>Nand2Tetris Course</b></h2>
    <p align="center">
-      <img src="COURSE_IMAGE.png" width="30%"/>
+      <img src="COURSE_IMAGE.png" width="50%"/>
    </p>
    <p align="center">
       The full implementation of the <a href="https://www.nand2tetris.org/course">Nand2Tetris</a> course provided by Shimon Schocken and Noam Nisan
