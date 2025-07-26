@@ -12,6 +12,7 @@ class CompilationEngine:
 
         self.c_class_name = ''
         self.c_subroutine_name = ''
+        self.c_subroutine_ktype: KTypes = None
         self.label_id = 0
 
         self.write('', f"{__project__} by {__author__} - {jack_file}\n")
@@ -122,15 +123,18 @@ class CompilationEngine:
         """
         self.s_table.start_subroutine()
 
-        c_keyword = self.tokenizer.keyWord()
-        if c_keyword == KTypes.K_METHOD:
+        self.c_subroutine_ktype = self.tokenizer.keyWord()
+        if self.c_subroutine_ktype == KTypes.K_METHOD:
             self.s_table.add('this', self.c_class_name, VarKind.ARG)
         self.tokenizer.advance()
 
+        c_type = None
         if self.tokenizer.tokenType() == TTypes.T_KEYWORD and self.tokenizer.keyWord() == KTypes.K_VOID:
             self.tokenizer.advance()
         else:
-            self.compileType()
+            c_type = self.compileType()
+        if self.c_subroutine_ktype == KTypes.K_CONSTRUCTOR and c_type != self.c_class_name:
+            self.raise_expection(f"Constructor return type must be '{self.c_class_name}', found '{c_type}' at line {self.tokenizer.token[1]}.")
 
         self.c_subroutine_name = self.tokenizer.identifier()
         self.tokenizer.advance()
@@ -141,7 +145,7 @@ class CompilationEngine:
 
         self.check_symbol(')')
 
-        self.compileSubroutineBody(c_keyword)
+        self.compileSubroutineBody()
 
     def compileParameterList(self) -> None:
         """
@@ -158,7 +162,7 @@ class CompilationEngine:
                 self.s_table.add(self.tokenizer.identifier(), c_type, VarKind.ARG)
                 self.tokenizer.advance()
 
-    def compileSubroutineBody(self, c_keyword: KTypes) -> None:
+    def compileSubroutineBody(self) -> None:
         """
         subroutineBody: '{' varDec* statements '}'
         """
@@ -168,11 +172,11 @@ class CompilationEngine:
             self.compileVarDec()
 
         self.write(f"function {self.c_class_name}.{self.c_subroutine_name} {self.s_table.get_max_index(VarKind.LOCAL)}")
-        if c_keyword == KTypes.K_CONSTRUCTOR:
+        if self.c_subroutine_ktype == KTypes.K_CONSTRUCTOR:
             self.write(f"push constant {self.s_table.get_max_index(VarKind.FIELD)}", "Constructor: push object size")
             self.write('call Memory.alloc 1')
             self.write('pop pointer 0', "Constructor: set 'this' pointer")
-        elif c_keyword == KTypes.K_METHOD:
+        elif self.c_subroutine_ktype == KTypes.K_METHOD:
             self.write('push argument 0', "Method: push 'this' reference")
             self.write('pop pointer 0', "Method: set 'this' pointer")
 
@@ -328,6 +332,10 @@ class CompilationEngine:
         returnStatement: 'return' expression? ';'
         """
         self.tokenizer.advance()
+
+        if self.c_subroutine_ktype == KTypes.K_CONSTRUCTOR:
+            if self.tokenizer.tokenType() != TTypes.T_KEYWORD or self.tokenizer.keyWord() != KTypes.K_THIS:
+                self.raise_expection(f"Constructor must return 'this' at line {self.tokenizer.token[1]}.")
 
         if self.tokenizer.tokenType() != TTypes.T_SYMBOL:
             self.compileExpression()
