@@ -1,0 +1,55 @@
+CHIP Mul{
+    IN a[16], b[16];
+    OUT out[16];
+
+    PARTS:
+
+    Add16(a=a, b=a, out=a2);
+    Add16(a=a2, b=a2, out=a3);
+    Add16(a=a3, b=a3, out=a4);
+    Add16(a=a4, b=a4, out=a5);
+    Add16(a=a5, b=a5, out=a6);
+    Add16(a=a6, b=a6, out=a7);
+    Add16(a=a7, b=a7, out=a8);
+    Add16(a=a8, b=a8, out=a9);
+    Add16(a=a9, b=a9, out=a10);
+    Add16(a=a10, b=a10, out=a11);
+    Add16(a=a11, b=a11, out=a12);
+    Add16(a=a12, b=a12, out=a13);
+    Add16(a=a13, b=a13, out=a14);
+    Add16(a=a14, b=a14, out=a15);
+    Add16(a=a15, b=a15, out=a16);
+
+    Add16(a[0..15]=false, b=a, out=add1);
+    Mux16(a[0..15]=false, b=add1, sel=b[0], out=o1);
+    Add16(a=o1, b=a2, out=add2);
+    Mux16(a=o1, b=add2, sel=b[1], out=o2);
+    Add16(a=o2, b=a3, out=add3);
+    Mux16(a=o2, b=add3, sel=b[2], out=o3);
+    Add16(a=o3, b=a4, out=add4);
+    Mux16(a=o3, b=add4, sel=b[3], out=o4);
+    Add16(a=o4, b=a5, out=add5);
+    Mux16(a=o4, b=add5, sel=b[4], out=o5);
+    Add16(a=o5, b=a6, out=add6);
+    Mux16(a=o5, b=add6, sel=b[5], out=o6);
+    Add16(a=o6, b=a7, out=add7);
+    Mux16(a=o6, b=add7, sel=b[6], out=o7);
+    Add16(a=o7, b=a8, out=add8);
+    Mux16(a=o7, b=add8, sel=b[7], out=o8);
+    Add16(a=o8, b=a9, out=add9);
+    Mux16(a=o8, b=add9, sel=b[8], out=o9);
+    Add16(a=o9, b=a10, out=add10);
+    Mux16(a=o9, b=add10, sel=b[9], out=o10);
+    Add16(a=o10, b=a11, out=add11);
+    Mux16(a=o10, b=add11, sel=b[10], out=o11);
+    Add16(a=o11, b=a12, out=add12);
+    Mux16(a=o11, b=add12, sel=b[11], out=o12);
+    Add16(a=o12, b=a13, out=add13);
+    Mux16(a=o12, b=add13, sel=b[12], out=o13);
+    Add16(a=o13, b=a14, out=add14);
+    Mux16(a=o13, b=add14, sel=b[13], out=o14);
+    Add16(a=o14, b=a15, out=add15);
+    Mux16(a=o14, b=add15, sel=b[14], out=o15);
+    Add16(a=o15, b=a16, out=add16);
+    Mux16(a=o15, b=add16, sel=b[15], out=out);
+}

@@ -1,0 +1,30 @@
+// klausur 2012.8 testing
+
+class Main {
+
+    function void main() {
+        var Main m;
+        do m.f();
+        return;
+    }
+
+    method void f() {
+        var int x, y, z;
+
+        if (x > y) {
+            let z = x + log(y * 42);
+        } else {
+            do g(x*x);
+        }
+        return;
+    }
+
+    method void g(int a) {
+        return;
+    }
+
+    method int log(int a) {
+        return 0;
+    }
+
+}

@@ -1,0 +1,36 @@
+
+class Main {
+
+    field int x;
+    static int y;
+
+    function void main() {
+        var int result;
+        var Main m;
+        let result = Main.ackermann(3, 4);
+        // do Output.printInt(result);
+        let m = Main.new();
+        let result = m.getX();
+        return;
+    }
+
+    function int ackermann(int n, int m) {
+        if (n = 0) {
+            return m+1;
+        }
+        if (m = 0) {
+            return Main.ackermann(n-1, 1);
+        }
+        return Main.ackermann(n-1, Main.ackermann(n, m-1));
+    }
+
+    constructor Main new() {
+        let x = 0;
+        do Output.printInt(getX());
+        return this;
+    }
+
+    method int getX() {
+        return x;
+    }
+}

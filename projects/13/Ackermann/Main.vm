@@ -1,0 +1,68 @@
+      // Nand2Tetris Jack Compiler by Silas A. Kraume - ..\13\Ackermann\Main.jack
+
+function Main.main 2
+    push constant 3
+    push constant 4
+    call Main.ackermann 2
+    pop local 0  // Variable assignment: store in result
+    call Main.new 0
+    pop local 1  // Variable assignment: store in m
+    push local 1  // Method call: push object reference for m
+    call Main.getX 1
+    pop local 0  // Variable assignment: store in result
+    push constant 0  // Return statement: push default return value
+    return
+function Main.ackermann 0
+    push argument 0  // Variable: push n
+    push constant 0
+    eq
+    not  // If statement: negate condition
+    if-goto Main.ackermann.LABEL_0  // If statement: jump to else/end if false
+    push argument 1  // Variable: push m
+    push constant 1
+    add
+    return
+    goto Main.ackermann.LABEL_1  // If statement: skip else block
+label Main.ackermann.LABEL_0  // If statement: else label
+label Main.ackermann.LABEL_1  // If statement: end label
+    push argument 1  // Variable: push m
+    push constant 0
+    eq
+    not  // If statement: negate condition
+    if-goto Main.ackermann.LABEL_2  // If statement: jump to else/end if false
+    push argument 0  // Variable: push n
+    push constant 1
+    sub
+    push constant 1
+    call Main.ackermann 2
+    return
+    goto Main.ackermann.LABEL_3  // If statement: skip else block
+label Main.ackermann.LABEL_2  // If statement: else label
+label Main.ackermann.LABEL_3  // If statement: end label
+    push argument 0  // Variable: push n
+    push constant 1
+    sub
+    push argument 0  // Variable: push n
+    push argument 1  // Variable: push m
+    push constant 1
+    sub
+    call Main.ackermann 2
+    call Main.ackermann 2
+    return
+function Main.new 0
+    push constant 1  // Constructor: push object size
+    call Memory.alloc 1
+    pop pointer 0  // Constructor: set 'this' pointer
+    push constant 0
+    pop this 0  // Variable assignment: store in x
+    push pointer 0  // Method call: push 'this' for getX
+    call Main.getX 1
+    call Output.printInt 1
+    pop temp 0  // Do statement: discard return value
+    push pointer 0  // Keyword constant: this
+    return
+function Main.getX 0
+    push argument 0  // Method: push 'this' reference
+    pop pointer 0  // Method: set 'this' pointer
+    push this 0  // Variable: push x
+    return

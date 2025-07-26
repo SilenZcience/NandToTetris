@@ -1,0 +1,87 @@
+
+push constant 775
+pop static 0
+
+push constant 1
+pop temp 0 // divisor
+push static 0
+pop temp 1 // tmp
+
+push constant 0
+pop static 2   // quersumme
+
+
+label loopdivisor
+
+push temp 1
+push constant 9
+gt
+not
+if-goto enddivisor
+
+push temp 1
+push constant 10
+call Math.divide 2
+pop temp 1
+
+push temp 0
+push constant 10
+call Math.multiply 2
+pop temp 0
+
+goto loopdivisor
+label enddivisor
+
+push static 0
+pop temp 1 // tmp
+
+
+label loopquer
+
+push temp 0
+push constant 0
+gt
+not
+if-goto endquer
+
+
+push temp 1
+push temp 0
+call Math.divide 2
+pop static 1 // digit
+
+push static 1
+push static 2
+add
+pop static 2 // quersumme
+
+
+push temp 1
+push static 1
+push temp 0
+call Math.multiply 2
+sub
+pop temp 1 // tmp
+
+push temp 0
+push constant 10
+call Math.divide 2
+pop temp 0 // tmp
+
+
+
+goto loopquer
+label endquer
+
+// check if zahl durch quersumme teilbar
+push static 0
+push static 2
+call Math.divide 2
+push static 2
+call Math.multiply 2
+push static 0
+eq
+
+
+label halt
+goto halt

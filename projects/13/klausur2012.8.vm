@@ -1,0 +1,31 @@
+
+
+
+push local 0
+push local 1
+gt
+not
+if-goto if-true
+
+push pointer 0
+push local 0
+push local 0
+call Math.multiply 2
+call ?.g 2
+
+
+goto end
+label if-true
+
+push local 0
+
+push pointer 0
+push local 1
+push constant 42
+call math.multiply 2
+call ?.log 2
+add
+pop local 2
+
+
+label end

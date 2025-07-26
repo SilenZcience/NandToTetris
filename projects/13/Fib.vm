@@ -1,0 +1,41 @@
+
+
+push constant 0
+pop static 0 // pre1
+push constant 1
+pop static 1 // pre2
+
+push constant 8
+pop static 2 // k
+
+push constant 0
+pop static 3  // ergebnis
+
+
+
+
+label loop
+
+push static 2 // k
+push constant 1
+sub
+pop static 2 // k
+
+push static 2 // k
+push constant 0
+lt
+if-goto end
+
+push static 0
+push static 1
+add
+pop static 3
+
+push static 1
+pop static 0
+push static 3
+pop static 1
+
+goto loop
+
+label end
