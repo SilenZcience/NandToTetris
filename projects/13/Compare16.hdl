@@ -1,0 +1,12 @@
+CHIP Compare16{
+    IN a[16], b[16];
+    OUT lt, eq, gt;
+
+    PARTS:
+
+    ALU(x=a, y=b, zx=false, nx=true, zy=false, ny=false, f=true, no=true, out=aluout, zr=eq, zr=eqq, ng=lt, ng=ltt);
+
+    Or(a=eqq, b=ltt, out=eqorlt);
+    Not(in=eqorlt, out=gt);
+
+}

@@ -1,0 +1,11 @@
+CHIP Absolute16{
+    IN a[16];
+    OUT out[16];
+
+    PARTS:
+
+    Not16(in=a, out=na);
+    Add16(a=na, b[1..15]=false, b[0]=true, out=absa);
+    Mux16(a=a, b=absa, sel=a[15], out=out);
+
+}

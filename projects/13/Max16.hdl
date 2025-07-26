@@ -1,0 +1,11 @@
+CHIP Max16{
+    IN a[16], b[16];
+    OUT out[16];
+
+    PARTS:
+
+    Compare16(a=a, b=b, lt=lt, eq=eq, gt=gt);
+
+    Mux16(a=a, b=b, sel=lt, out=out);
+
+}

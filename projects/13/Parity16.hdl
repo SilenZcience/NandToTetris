@@ -1,0 +1,22 @@
+CHIP Parity16{
+    IN in[16];
+    OUT out;
+    // checks if number of 1's in in is even
+    PARTS:
+    Xor(a=in[0], b=in[1], out=t1);
+    Xor(a=t1, b=in[2], out=t2);
+    Xor(a=t2, b=in[3], out=t3);
+    Xor(a=t3, b=in[4], out=t4);
+    Xor(a=t4, b=in[5], out=t5);
+    Xor(a=t5, b=in[6], out=t6);
+    Xor(a=t6, b=in[7], out=t7);
+    Xor(a=t7, b=in[8], out=t8);
+    Xor(a=t8, b=in[9], out=t9);
+    Xor(a=t9, b=in[10], out=t10);
+    Xor(a=t10, b=in[11], out=t11);
+    Xor(a=t11, b=in[12], out=t12);
+    Xor(a=t12, b=in[13], out=t13);
+    Xor(a=t13, b=in[14], out=t14);
+    Xor(a=t14, b=in[15], out=outodd);
+    Not(in=outodd, out=out);
+}
