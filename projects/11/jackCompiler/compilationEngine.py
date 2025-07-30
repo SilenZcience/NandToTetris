@@ -186,7 +186,7 @@ class CompilationEngine:
 
     def compileVarDec(self) -> None:
         """
-        varDec: 'var' type varName (',' varName)* ';'s
+        varDec: 'var' type varName (',' varName)* ';'
         """
         self.tokenizer.advance()
 
